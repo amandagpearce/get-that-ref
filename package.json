@@ -1,0 +1,36 @@
+{
+  "name": "get-that-ref",
+  "version": "1.0.0",
+  "description": "Projeto criado como componente A do MVP da disciplina de Back-end avançado do curso de pós-graduação em Desenvolvimento Full Stack da PUC-Rio.",
+  "main": "index.js",
+  "scripts": {
+    "start": "cross-env BROWSER=none next start",
+    "dev": "concurrently \"npm run dev:open\" \"npm run dev:server\"",
+    "dev:open": "cross-env BROWSER=chrome start http://localhost:3000",
+    "dev:server": "next dev",
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amandagpearce/get-that-ref.git"
+  },
+  "author": "Amanda Pearce",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/amandagpearce/get-that-ref/issues"
+  },
+  "homepage": "https://github.com/amandagpearce/get-that-ref#readme",
+  "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.14.3",
+    "@mui/material": "^5.14.5",
+    "next": "^13.4.18",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0",
+    "cross-env": "^7.0.3"
+  }
+}
