@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useState } from 'react';
 import { styled, alpha } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -45,9 +45,7 @@ const SearchIconWrapper = styled('div')(({ theme }) => ({
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: 'inherit',
   '& .MuiInputBase-input': {
-    padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
-    paddingLeft: `calc(1.2em + ${theme.spacing(4)})`,
+    padding: '10px 20px',
     transition: theme.transitions.create('width'),
     width: '100%',
     [theme.breakpoints.up('md')]: {
@@ -57,8 +55,8 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export default function Header() {
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
@@ -119,32 +117,12 @@ export default function Header() {
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
     >
-      <MenuItem>
-        <IconButton size="large" aria-label="show 4 new mails" color="inherit">
-          <Badge badgeContent={4} color="error">
-            <MailIcon />
-          </Badge>
-        </IconButton>
-        <p>Messages</p>
-      </MenuItem>
-      <MenuItem>
-        <IconButton
-          size="large"
-          aria-label="show 17 new notifications"
-          color="inherit"
-        >
-          <Badge badgeContent={17} color="error">
-            <NotificationsIcon />
-          </Badge>
-        </IconButton>
-        <p>Notifications</p>
-      </MenuItem>
       <MenuItem onClick={handleProfileMenuOpen}>
         <IconButton
           aria-label="account of current user"
           aria-controls="primary-search-account-menu"
           aria-haspopup="true"
-          style={{ fontSize: '48px', color: '#0d3769' }} // Adjust size and color here
+          sx={{ fontSize: '48px', color: '#0d3769' }} // Adjust size and color here
           color="inherit"
         >
           <AccountCircle />
@@ -159,40 +137,44 @@ export default function Header() {
       <Container maxWidth="lg">
         <AppBar
           position="static"
-          style={{
+          sx={{
             background: 'transparent',
             padding: '10px 0',
             boxShadow: 'none',
           }}
         >
-          <Toolbar
-            style={{
-              justifyContent: 'space-between',
-            }}
-          >
+          <Toolbar>
             <img src="/logo.png" width="180" alt="Get that ref?" />
 
-            <Search>
-              <SearchIconWrapper>
-                <SearchIcon />
-              </SearchIconWrapper>
-              <StyledInputBase
-                placeholder="Search Series"
-                inputProps={{ 'aria-label': 'search' }}
-              />
-            </Search>
+            <Box
+              sx={{ display: { xs: 'none', md: 'flex' }, marginLeft: 'auto' }}
+            >
+              <Search sx={{ marginLeft: 'auto' }}>
+                <StyledInputBase
+                  placeholder="Search Series"
+                  inputProps={{ 'aria-label': 'search' }}
+                  sx={{ fontSize: '1.8em' }}
+                  endAdornment={<SearchIcon sx={{ margin: '20px' }} />}
+                />
+              </Search>
+            </Box>
 
-            <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+            <Box
+              sx={{
+                display: { xs: 'none', md: 'flex' },
+                alignSelf: 'flex-end',
+              }}
+            >
               <IconButton
                 edge="end"
                 aria-label="account of current user"
                 aria-controls={menuId}
                 aria-haspopup="true"
                 onClick={handleProfileMenuOpen}
-                style={{ color: '#0d3769' }}
+                sx={{ color: '#0d3769' }}
                 color="inherit"
               >
-                <AccountCircle style={{ width: '3em', height: 'auto' }} />
+                <AccountCircle sx={{ width: '3em', height: 'auto' }} />
               </IconButton>
             </Box>
 
