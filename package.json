@@ -2,7 +2,6 @@
   "name": "get-that-ref",
   "version": "1.0.0",
   "description": "Projeto criado como componente A do MVP da disciplina de Back-end avançado do curso de pós-graduação em Desenvolvimento Full Stack da PUC-Rio.",
-  "main": "index.js",
   "scripts": {
     "start": "cross-env BROWSER=none next start",
     "dev": "concurrently \"npm run dev:open\" \"npm run dev:server\"",
@@ -24,6 +23,7 @@
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.14.3",
+    "@mui/lab": "^5.0.0-alpha.140",
     "@mui/material": "^5.14.5",
     "next": "^13.4.18",
     "react": "^18.2.0",
