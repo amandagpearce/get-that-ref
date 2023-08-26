@@ -17,21 +17,22 @@ const Label = styled(Paper)(({ theme }) => ({
 export default function ImageMasonry({ itemData }) {
   return (
     <Box>
-      <Masonry columns={3} spacing={2}>
+      <Masonry columns={7} spacing={2}>
         {itemData.map((item, index) => (
-          <div key={index}>
-            <img
-              src={`${item.img}?w=690&auto=format`}
-              srcSet={`${item.img}?w=690&auto=format&dpr=2 2x`}
-              alt={item.title}
-              loading="lazy"
-              style={{
-                borderBottomLeftRadius: 4,
-                borderBottomRightRadius: 4,
-                display: 'block',
-                width: '100%',
-              }}
-            />
+          <div key={index} data-series-year={item.year}>
+            <div className="image-container">
+              <img
+                src={`${item.image_url}?w=690&auto=format`}
+                srcSet={`${item.image_url}?w=690&auto=format&dpr=2 2x`}
+                alt={item.title}
+                loading="lazy"
+                style={{
+                  display: 'block',
+                  width: '100%',
+                }}
+              />
+            </div>
+            <div className="refereces-container"></div>
           </div>
         ))}
       </Masonry>
