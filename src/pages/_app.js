@@ -1,6 +1,12 @@
 import Head from 'next/head';
 import Layout from '@component/components/layout/Layout';
+import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
 import './_app.css';
+
+const client = new ApolloClient({
+  uri: `${process.env.NEXT_PUBLIC_ART_REFS_API_URL}/graphql`, // Your Flask GraphQL API endpoint
+  cache: new InMemoryCache(),
+});
 
 export default function App({ Component, pageProps }) {
   return (
@@ -11,7 +17,9 @@ export default function App({ Component, pageProps }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Component {...pageProps} />
+      <ApolloProvider client={client}>
+        <Component {...pageProps} />
+      </ApolloProvider>
     </Layout>
   );
 }
