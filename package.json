@@ -4,8 +4,8 @@
   "description": "Projeto criado como componente A do MVP da disciplina de Back-end avançado do curso de pós-graduação em Desenvolvimento Full Stack da PUC-Rio.",
   "scripts": {
     "start": "cross-env BROWSER=none next start",
-    "dev": "concurrently \"npm run dev:open\" \"npm run dev:server\"",
-    "dev:open": "cross-env BROWSER=chrome start http://localhost:3000",
+    "dev": "next dev",
+    "dev:open": "npm start",
     "dev:server": "next dev",
     "test": "test"
   },
@@ -24,6 +24,7 @@
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.14.3",
+    "@mui/joy": "^5.0.0-beta.4",
     "@mui/lab": "^5.0.0-alpha.140",
     "@mui/material": "^5.14.5",
     "graphql": "^16.8.0",
