@@ -13,8 +13,6 @@ const LoginForm = () => {
         width: 400,
         // mx: 'auto', // margin left & right
         my: 4, // margin top & bottom
-        py: 4, // padding top & bottom
-        px: 4, // padding left & right
         display: 'flex',
         flexDirection: 'column',
         gap: 2,
