@@ -17,9 +17,9 @@ import { useSearch } from '../../context/SearchContext';
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
   borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha('#fff196', 0.7),
+  backgroundColor: alpha('#EEE', 0.4),
   '&:hover': {
-    backgroundColor: alpha('#fff196', 1),
+    backgroundColor: alpha('#EEE', 0.8),
   },
   color: '#0d3769',
   marginRight: theme.spacing(2),
@@ -122,10 +122,15 @@ export default function Header() {
           aria-label="account of current user"
           aria-controls="primary-search-account-menu"
           aria-haspopup="true"
-          sx={{ fontSize: '48px', color: '#0d3769' }} // Adjust size and color here
+          sx={{ fontSize: '28px', color: '#FFF' }} // Adjust size and color here
           color="inherit"
         >
-          <AccountCircle />
+          <AccountCircle
+            sx={{
+              background: 'linear-gradient(45deg, #ffe622, #ff54fd, #2196F3)',
+              borderRadius: '100%',
+            }}
+          />
         </IconButton>
         <p>Profile</p>
       </MenuItem>
@@ -133,18 +138,34 @@ export default function Header() {
   );
 
   return (
-    <Box sx={{ flexGrow: 1, background: '#ffe01d' }}>
-      <Container maxWidth="lg">
+    <Box
+      sx={{
+        flexGrow: 1,
+        background: '#FFF',
+        padding: '0',
+        boxShadow: '0px -1px 11px rgba(0, 0, 0, 0.3)',
+      }}
+    >
+      <Container maxWidth="xlg" p={0}>
         <AppBar
           position="static"
           sx={{
             background: 'transparent',
             padding: '10px 0',
+            paddingLeft: '0',
+            paddingRight: '0',
             boxShadow: 'none',
           }}
         >
-          <Toolbar>
-            <img src="/logo.png" width="180" alt="Get that ref?" />
+          <Toolbar style={{ paddingLeft: '0' }}>
+            <Link href="/">
+              <img
+                src="/logo.png"
+                width="180"
+                alt="Got that ref?"
+                style={{ filter: 'hue-rotate(258deg)' }}
+              />
+            </Link>
 
             <Box
               sx={{ display: { xs: 'none', md: 'flex' }, marginLeft: 'auto' }}
@@ -164,7 +185,7 @@ export default function Header() {
             <Box
               sx={{
                 display: { xs: 'none', md: 'flex' },
-                alignSelf: 'flex-end',
+                alignSelf: 'center',
               }}
             >
               <IconButton
@@ -173,10 +194,18 @@ export default function Header() {
                 aria-controls={menuId}
                 aria-haspopup="true"
                 onClick={handleProfileMenuOpen}
-                sx={{ color: '#0d3769' }}
+                sx={{ color: '#fff', padding: '0' }}
                 color="inherit"
               >
-                <AccountCircle sx={{ width: '3em', height: 'auto' }} />
+                <AccountCircle
+                  sx={{
+                    background:
+                      'linear-gradient(45deg, #ffe622, #ff54fd, #2196F3)',
+                    borderRadius: '100%',
+                    width: '2.1em',
+                    height: 'auto',
+                  }}
+                />
               </IconButton>
             </Box>
 
