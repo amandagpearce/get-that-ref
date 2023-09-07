@@ -1,0 +1,58 @@
+import * as React from 'react';
+import Sheet from '@mui/joy/Sheet';
+import Typography from '@mui/joy/Typography';
+import FormControl from '@mui/joy/FormControl';
+import FormLabel from '@mui/joy/FormLabel';
+import Input from '@mui/joy/Input';
+import Button from '@mui/joy/Button';
+
+const LoginForm = () => {
+  return (
+    <Sheet
+      sx={{
+        width: 400,
+        // mx: 'auto', // margin left & right
+        my: 4, // margin top & bottom
+        py: 4, // padding top & bottom
+        px: 4, // padding left & right
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 2,
+        borderRadius: 'sm',
+        boxShadow: 'md',
+      }}
+      variant="outlined"
+    >
+      <div>
+        <Typography level="h4" component="h1">
+          <b>Login</b>
+        </Typography>
+        <Typography level="body-sm">Sign in to continue.</Typography>
+      </div>
+      <FormControl>
+        <FormLabel>Email</FormLabel>
+        <Input
+          // html input attribute
+          name="email"
+          type="email"
+          placeholder="johndoe@email.com"
+        />
+      </FormControl>
+      <FormControl>
+        <FormLabel>Password</FormLabel>
+        <Input
+          // html input attribute
+          name="password"
+          type="password"
+          placeholder="password"
+        />
+      </FormControl>
+
+      <Button sx={{ mt: 1 /* margin top */, background: '#0d3769' }}>
+        Log in
+      </Button>
+    </Sheet>
+  );
+};
+
+export default LoginForm;
