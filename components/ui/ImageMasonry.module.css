@@ -1,0 +1,23 @@
+.image-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.image-container img {
+  width: 100%;
+  height: auto;
+  display: block;
+  opacity: 0.8;
+  border-width: 8px;
+  border-style: solid;
+  box-sizing: border-box;
+  border-image: linear-gradient(45deg, transparent, transparent, transparent) 1;
+  transition: border-image 0.1s ease-in-out;
+  box-sizing: border-box;
+}
+
+.image-container:hover img {
+  opacity: 1;
+  cursor: pointer;
+  border-image: linear-gradient(45deg, #ffe622, #ff54fd, #2196f3) 1;
+}
