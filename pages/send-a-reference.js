@@ -1,77 +1,217 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Sheet from '@mui/joy/Sheet';
 import Typography from '@mui/joy/Typography';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import Input from '@mui/joy/Input';
 import Button from '@mui/joy/Button';
-import Link from '@mui/joy/Link';
+import Radio from '@mui/joy/Radio';
+import RadioGroup from '@mui/joy/RadioGroup';
+import Grid from '@mui/material/Grid';
+import { Container } from '@mui/material';
 
 const SendAReference = () => {
+  const [artwork, setArtwork] = useState('');
+  const [artist, setArtist] = useState('');
+  const [sceneDescription, setSceneDescription] = useState('');
+  const [isMovie, setIsMovie] = useState(true);
+  const [title, setTitle] = useState('');
+  const [year, setYear] = useState('');
+  const [episode, setEpisode] = useState('');
+  const [season, setSeason] = useState('');
+
+  const handleRadioChange = (event) => {
+    setIsMovie(event.target.value === 'movie');
+  };
+
+  const handleFileChange = (event) => {
+    // Handle file selection here, you can set the selected file to state
+    const file = event.target.files[0];
+    setSelectedFile(file);
+  };
+
   return (
-    <Sheet
-      sx={{
-        width: 300,
-        mx: 'auto', // margin left & right
-        my: 4, // margin top & bottom
-        py: 3, // padding top & bottom
-        px: 2, // padding left & right
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 2,
-        borderRadius: 'sm',
-        boxShadow: 'md',
-      }}
-      variant="outlined"
-    >
-      <div>
-        <Typography level="h4" component="h1">
-          <b>Welcome!</b>
-        </Typography>
-        <Typography level="body-sm">
-          Fill in the form bellow to publish the visual arts reference:
-        </Typography>
-      </div>
-      <FormControl>
-        <FormLabel>Artwork referenced</FormLabel>
-        <Input
-          // html input attribute
-          name="email"
-          type="email"
-          placeholder="johndoe@email.com"
-        />
-      </FormControl>
-      <FormControl>
-        <FormLabel>Artwork Author</FormLabel>
-        <Input
-          // html input attribute
-          name="password"
-          type="password"
-          placeholder="password"
-        />
-      </FormControl>
-
-      <FormControl>
-        <FormLabel>Description of the artwork</FormLabel>
-      </FormControl>
-
-      <FormControl>
-        <FormLabel>Series or Movie?</FormLabel>
-      </FormControl>
-
-      <FormControl>
-        <FormLabel>Description of the scene</FormLabel>
-      </FormControl>
-
-      <Button sx={{ mt: 1 /* margin top */ }}>Log in</Button>
-      <Typography
-        endDecorator={<Link href="/sign-up">Sign up</Link>}
-        fontSize="sm"
-        sx={{ alignSelf: 'center' }}
+    <Container maxWidth="lg">
+      <Sheet
+        sx={{
+          width: '100%',
+          mx: 'auto',
+          my: 4,
+          py: 4,
+          px: 4,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 2,
+          borderRadius: 'sm',
+          boxShadow: 'md',
+        }}
+        variant="outlined"
       >
-        Don&apos;t have an account?
-      </Typography>
-    </Sheet>
+        <Grid container spacing={2} sx={{ alignItems: 'flex-end' }}>
+          <Grid item xs={12}>
+            <Typography level="h4" component="h1">
+              <b>Welcome!</b>
+            </Typography>
+            <Typography level="body-sm" sx={{ fontSize: '1.2rem' }}>
+              Fill in the form below with the visual arts reference data:
+            </Typography>
+          </Grid>
+
+          <Grid item xs={12} md={6} lg={4}>
+            <FormControl>
+              <Grid container alignItems="center">
+                <Grid item xs={4} sx={{ marginBottom: 2 }}>
+                  <RadioGroup
+                    name="isMovie"
+                    value={isMovie ? 'movie' : 'series'}
+                    onChange={handleRadioChange}
+                    sx={{
+                      fontSize: '1.1rem',
+                      fontWeight: '500',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Radio value="movie" sx={{ marginRight: '10px' }} /> Movie
+                  </RadioGroup>
+                </Grid>
+
+                <Grid item xs={4} sx={{ marginBottom: 2 }}>
+                  <RadioGroup
+                    name="isMovie"
+                    value={isMovie ? 'movie' : 'series'}
+                    onChange={handleRadioChange}
+                    sx={{
+                      fontSize: '1.1rem',
+                      fontWeight: '500',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Radio value="series" sx={{ marginRight: '10px' }} /> Series
+                  </RadioGroup>
+                </Grid>
+
+                <Grid item xs={12}>
+                  <FormControl>
+                    <FormLabel sx={{ fontSize: '1.1rem' }}>Title*</FormLabel>
+                    <Input
+                      name="title"
+                      type="text"
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      required
+                    />
+                  </FormControl>
+                </Grid>
+              </Grid>
+            </FormControl>
+
+            {isMovie ? (
+              <>
+                <FormControl sx={{ marginTop: 2, marginBottom: 2 }}>
+                  <FormLabel sx={{ fontSize: '1.1rem' }}>Year*</FormLabel>
+                  <Input
+                    name="year"
+                    type="number"
+                    value={year}
+                    onChange={(e) => setYear(e.target.value)}
+                    required
+                  />
+                </FormControl>
+              </>
+            ) : (
+              <>
+                <FormControl sx={{ marginTop: 2, marginBottom: 2 }}>
+                  <FormLabel sx={{ fontSize: '1.1rem' }}>Episode</FormLabel>
+                  <Input
+                    name="episode"
+                    type="text"
+                    value={episode}
+                    onChange={(e) => setEpisode(e.target.value)}
+                  />
+                </FormControl>
+                <FormControl sx={{ marginTop: 2, marginBottom: 2 }}>
+                  <FormLabel sx={{ fontSize: '1.1rem' }}>Season</FormLabel>
+                  <Input
+                    name="season"
+                    type="text"
+                    value={season}
+                    onChange={(e) => setSeason(e.target.value)}
+                  />
+                </FormControl>
+              </>
+            )}
+          </Grid>
+
+          <Grid item xs={12} md={6} lg={4}>
+            <FormControl sx={{ marginTop: 2, marginBottom: 2 }}>
+              <FormLabel sx={{ fontSize: '1.1rem' }}>
+                Artwork referenced*
+              </FormLabel>
+              <Input
+                name="artwork"
+                type="text"
+                value={artwork}
+                onChange={(e) => setArtwork(e.target.value)}
+                required
+              />
+            </FormControl>
+
+            <FormControl sx={{ marginTop: 2, marginBottom: 2 }}>
+              <FormLabel sx={{ fontSize: '1.1rem' }}>Artist*</FormLabel>
+              <Input
+                name="artist"
+                type="text"
+                value={artist}
+                onChange={(e) => setArtist(e.target.value)}
+                required
+              />
+            </FormControl>
+          </Grid>
+
+          <Grid item xs={12} md={6} lg={4}>
+            <FormControl sx={{ marginTop: 2, marginBottom: 2 }}>
+              <FormLabel sx={{ fontSize: '1.1rem' }}>
+                Scene description*
+              </FormLabel>
+              <Input
+                name="sceneDescription"
+                type="text"
+                value={sceneDescription}
+                onChange={(e) => setSceneDescription(e.target.value)}
+                required
+              />
+            </FormControl>
+
+            <FormControl sx={{ marginTop: 2, marginBottom: 2 }}>
+              <FormLabel sx={{ fontSize: '1.1rem' }}>
+                Scene screenshot/print/image
+              </FormLabel>
+              <Input
+                name="sceneImage"
+                type="file"
+                accept=".png, .jpeg, .jpg" // Specify accepted file types
+                onChange={handleFileChange}
+                sx={{ paddingTop: '7px' }}
+              />
+            </FormControl>
+          </Grid>
+
+          <Grid
+            item
+            xs={12}
+            sx={{ display: 'flex', justifyContent: 'flex-end' }}
+          >
+            <Button
+              sx={{ mt: 1, backgroundColor: '#0d3769', fontSize: '1.1rem' }}
+            >
+              Submit
+            </Button>
+          </Grid>
+        </Grid>
+      </Sheet>
+    </Container>
   );
 };
 
