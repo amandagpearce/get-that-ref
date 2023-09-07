@@ -1,64 +1,59 @@
-import * as React from 'react';
-import Sheet from '@mui/joy/Sheet';
-import Typography from '@mui/joy/Typography';
-import FormControl from '@mui/joy/FormControl';
-import FormLabel from '@mui/joy/FormLabel';
-import Input from '@mui/joy/Input';
-import Button from '@mui/joy/Button';
-import Link from '@mui/joy/Link';
+import React from 'react';
+import LoginForm from '../components/ui/LoginForm';
+import SignupForm from '../components/ui/SignupForm';
+import { Grid, Container } from '@mui/material';
 
-const Login = () => {
+const LoginPage = () => {
   return (
-    <Sheet
-      sx={{
-        width: 300,
-        mx: 'auto', // margin left & right
-        my: 4, // margin top & bottom
-        py: 3, // padding top & bottom
-        px: 2, // padding left & right
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 2,
-        borderRadius: 'sm',
-        boxShadow: 'md',
-      }}
-      variant="outlined"
-    >
-      <div>
-        <Typography level="h4" component="h1">
-          <b>Welcome!</b>
-        </Typography>
-        <Typography level="body-sm">Sign in to continue.</Typography>
-      </div>
-      <FormControl>
-        <FormLabel>Email</FormLabel>
-        <Input
-          // html input attribute
-          name="email"
-          type="email"
-          placeholder="johndoe@email.com"
-        />
-      </FormControl>
-      <FormControl>
-        <FormLabel>Password</FormLabel>
-        <Input
-          // html input attribute
-          name="password"
-          type="password"
-          placeholder="password"
-        />
-      </FormControl>
-
-      <Button sx={{ mt: 1 /* margin top */ }}>Log in</Button>
-      <Typography
-        endDecorator={<Link href="/sign-up">Sign up</Link>}
-        fontSize="sm"
-        sx={{ alignSelf: 'center' }}
-      >
-        Don&apos;t have an account?
-      </Typography>
-    </Sheet>
+    <Container maxWidth="lg">
+      <Grid container spacing={2}>
+        <Grid
+          item
+          xs={12}
+          md={5}
+          style={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            alignItems: 'flex-start',
+          }}
+        >
+          <LoginForm />
+        </Grid>
+        <Grid
+          item
+          md={2}
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'flex-end',
+          }}
+        >
+          {/* Simple separator */}
+          <div
+            style={{
+              width: '1px',
+              background: '#ccc',
+              padding: '30px 0',
+              height: '95%',
+              boxSizing: 'border-box',
+            }}
+          ></div>
+        </Grid>
+        <Grid
+          item
+          xs={12}
+          md={5}
+          style={{
+            display: 'flex',
+            justifyContent: 'flex-start',
+            alignItems: 'flex-start',
+          }}
+        >
+          <SignupForm />
+        </Grid>
+      </Grid>
+    </Container>
   );
 };
 
-export default Login;
+export default LoginPage;
