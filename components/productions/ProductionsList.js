@@ -7,13 +7,13 @@ const GET_PRODUCTIONS = gql`
   query {
     series {
       id
-      title
+      productionTitle
       year
       imageUrl
     }
     movies {
       id
-      title
+      productionTitle
       year
       imageUrl
     }
