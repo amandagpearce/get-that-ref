@@ -12,6 +12,7 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import MoreIcon from '@mui/icons-material/MoreVert';
 import { Container } from '@mui/material';
 import Link from 'next/link';
+import { useSearch } from '../../context/SearchContext';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -50,6 +51,8 @@ export default function Header() {
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
+  const { handleSearchInputChange } = useSearch();
+
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -65,6 +68,11 @@ export default function Header() {
 
   const handleMobileMenuOpen = (event) => {
     setMobileMoreAnchorEl(event.currentTarget);
+  };
+
+  const handleInputChange = (event) => {
+    const query = event.target.value;
+    handleSearchInputChange(query);
   };
 
   const menuId = 'primary-search-account-menu';
@@ -144,7 +152,10 @@ export default function Header() {
               <Search sx={{ marginLeft: 'auto' }}>
                 <StyledInputBase
                   placeholder="Search series or movie title"
-                  inputProps={{ 'aria-label': 'search' }}
+                  inputProps={{
+                    'aria-label': 'search',
+                  }}
+                  onChange={handleInputChange}
                   endAdornment={<SearchIcon sx={{ margin: '20px' }} />}
                 />
               </Search>
