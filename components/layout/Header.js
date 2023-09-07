@@ -5,15 +5,13 @@ import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import InputBase from '@mui/material/InputBase';
-import Badge from '@mui/material/Badge';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 import AccountCircle from '@mui/icons-material/AccountCircle';
-import MailIcon from '@mui/icons-material/Mail';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import MoreIcon from '@mui/icons-material/MoreVert';
 import { Container } from '@mui/material';
+import Link from 'next/link';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -32,24 +30,15 @@ const Search = styled('div')(({ theme }) => ({
   },
 }));
 
-const SearchIconWrapper = styled('div')(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  height: '100%',
-  position: 'absolute',
-  pointerEvents: 'none',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-}));
-
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: 'inherit',
   '& .MuiInputBase-input': {
     padding: '10px 20px',
     transition: theme.transitions.create('width'),
     width: '100%',
+    fontSize: '1.3em',
     [theme.breakpoints.up('md')]: {
-      width: '20ch',
+      width: '23ch',
     },
   },
 }));
@@ -83,20 +72,23 @@ export default function Header() {
     <Menu
       anchorEl={anchorEl}
       anchorOrigin={{
-        vertical: 'top',
-        horizontal: 'right',
+        vertical: 'bottom',
+        horizontal: 'center',
       }}
       id={menuId}
       keepMounted
       transformOrigin={{
         vertical: 'top',
-        horizontal: 'right',
+        horizontal: 'center',
       }}
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+      <Link href="/login">
+        <MenuItem onClick={handleMenuClose}>Login</MenuItem>
+      </Link>
+      <MenuItem onClick={handleMenuClose}>My Favourites</MenuItem>
+      <MenuItem onClick={handleMenuClose}>Sent References</MenuItem>
     </Menu>
   );
 
@@ -151,9 +143,8 @@ export default function Header() {
             >
               <Search sx={{ marginLeft: 'auto' }}>
                 <StyledInputBase
-                  placeholder="Search Series"
+                  placeholder="Search series or movie title"
                   inputProps={{ 'aria-label': 'search' }}
-                  sx={{ fontSize: '1.8em' }}
                   endAdornment={<SearchIcon sx={{ margin: '20px' }} />}
                 />
               </Search>
