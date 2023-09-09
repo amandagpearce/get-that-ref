@@ -6,7 +6,6 @@ import CardMedia from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { Grid, Container } from '@mui/material';
-import { CardTravel } from '@mui/icons-material';
 
 const AdminAccount = () => {
   const DUMMY_TO_APPROVE_ARRAY = [
