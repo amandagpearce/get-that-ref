@@ -7,12 +7,8 @@ import SeriesList from './SeriesList';
 const ProductionsList = () => {
   return (
     <>
-      <ApolloProvider client={moviesClient}>
-        <MoviesList />
-      </ApolloProvider>
-      <ApolloProvider client={seriesClient}>
-        <SeriesList />
-      </ApolloProvider>
+      <MoviesList />
+      <SeriesList />
     </>
   );
 };

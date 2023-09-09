@@ -5,6 +5,8 @@ import Header from '../components/layout/Header';
 import Marquee from '../components/ui/Marquee';
 import { SearchProvider } from '../context/SearchContext';
 import { Container } from '@mui/material';
+import { client } from '../apollo';
+import { ApolloProvider } from '@apollo/client';
 
 export default function App({ Component, pageProps }) {
   return (
@@ -23,11 +25,13 @@ export default function App({ Component, pageProps }) {
       <SearchProvider>
         <Header />
 
-        <Container maxWidth="xlg" style={{ background: '#efeffd' }}>
-          <main style={{ padding: '30px 0' }}>
-            <Component {...pageProps} />
-          </main>
-        </Container>
+        <ApolloProvider client={client}>
+          <Container maxWidth="xlg" style={{ background: '#efeffd' }}>
+            <main style={{ padding: '30px 0' }}>
+              <Component {...pageProps} />
+            </main>
+          </Container>
+        </ApolloProvider>
       </SearchProvider>
     </>
   );
