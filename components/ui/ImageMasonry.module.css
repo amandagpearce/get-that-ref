@@ -15,12 +15,43 @@
   box-sizing: border-box;
 }
 
-.image-container:hover img,
-.image-container.active img {
+.image-container:hover > img {
   cursor: pointer;
+  border-image: linear-gradient(45deg, #ffe622, #ff54fd, #2196f3) 1;
+}
+
+.image-container.active > img {
   border-image: linear-gradient(45deg, #ffe622, #ff54fd, #2196f3) 1;
 }
 
 .image-container.inactive img {
   filter: grayscale(100%);
+}
+
+.image-container.active {
+  position: unset;
+}
+
+.image-container:not(.active) .references-container {
+  display: none;
+}
+
+.image-container.active .references-container {
+  position: absolute;
+  width: 100%;
+  left: 0;
+  z-index: 999;
+  background: linear-gradient(45deg, #fff, #fff, #fff);
+}
+
+.references-container {
+  margin-top: 20px;
+}
+
+.references-container ul {
+  list-style-type: none;
+}
+
+.references-card {
+  background-color: transparent;
 }

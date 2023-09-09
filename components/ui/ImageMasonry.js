@@ -4,6 +4,13 @@ import Masonry from '@mui/lab/Masonry';
 import styles from './ImageMasonry.module.css';
 import { useQuery, gql } from '@apollo/client';
 
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+
 const ImageMasonry = ({ itemData }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedProductionId, setSelectedProductionId] = useState(null);
@@ -137,24 +144,48 @@ const ImageMasonry = ({ itemData }) => {
             />
 
             {selectedImage === item && ( // Check if the selectedImage matches the current item
-              <div className="references-container">
-                <h3>Artworks for {selectedImage.title}</h3>
+              <div className={styles['references-container']}>
                 {loading && <p>Loading artworks...</p>}
                 {error && <p>Error fetching artworks: {error.message}</p>}
-                {artworks && ( // Check if artworks is defined before rendering
+                {artworks && (
                   <ul>
                     {artworks.map((artwork) => (
-                      <li key={artwork.id}>
-                        <img
-                          alt={artwork.artworkTitle}
-                          loading="lazy"
-                          width="690"
-                          height="auto"
-                          src={`${artwork.imageUrl}?w=690&auto=format`}
-                          srcSet={`${artwork.imageUrl}?w=690&auto=format&dpr=2 2x`}
-                        />
-                        <strong>Artist:</strong> {artwork.artist}
-                        <strong>Title:</strong> {artwork.artworkTitle}
+                      <li key={artwork.id} item xs={12}>
+                        <Card
+                          xs={12}
+                          sx={{ display: 'flex', boxShadow: 'none' }}
+                          className={styles['references-card']}
+                        >
+                          <CardMedia
+                            component="img"
+                            alt={artwork.artworkTitle}
+                            height="auto"
+                            style={{ maxWidth: '600px' }}
+                            image={
+                              artwork.imageUrl
+                                ? artwork.imageUrl
+                                : 'https://placehold.co/500x450'
+                            }
+                          />
+                          <CardContent sx={{ boxShadow: 'none' }}>
+                            <Typography
+                              gutterBottom
+                              variant="h6"
+                              component="h6"
+                              px={6}
+                            >
+                              {artwork.artworkTitle} <b>({artwork.artist})</b>
+                            </Typography>
+                            <Typography gutterBottom px={6} py={1}></Typography>
+                            <Typography
+                              color="text.secondary"
+                              px={6}
+                              sx={{ textAlign: 'justify', fontSize: '1.3em' }}
+                            >
+                              {artwork.description}
+                            </Typography>
+                          </CardContent>
+                        </Card>
                       </li>
                     ))}
                   </ul>
