@@ -1,16 +1,10 @@
 import Head from 'next/head';
-import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
 import './_app.css';
 
 import Header from '../components/layout/Header';
 import Marquee from '../components/ui/Marquee';
 import { SearchProvider } from '../context/SearchContext';
 import { Container } from '@mui/material';
-
-const client = new ApolloClient({
-  uri: `${process.env.NEXT_PUBLIC_ART_REFS_API_URL}/graphql`, // Your Flask GraphQL API endpoint
-  cache: new InMemoryCache(),
-});
 
 export default function App({ Component, pageProps }) {
   return (
@@ -29,13 +23,11 @@ export default function App({ Component, pageProps }) {
       <SearchProvider>
         <Header />
 
-        <ApolloProvider client={client}>
-          <Container maxWidth="xlg" style={{ background: '#efeffd' }}>
-            <main style={{ padding: '30px 0' }}>
-              <Component {...pageProps} />
-            </main>
-          </Container>
-        </ApolloProvider>
+        <Container maxWidth="xlg" style={{ background: '#efeffd' }}>
+          <main style={{ padding: '30px 0' }}>
+            <Component {...pageProps} />
+          </main>
+        </Container>
       </SearchProvider>
     </>
   );
