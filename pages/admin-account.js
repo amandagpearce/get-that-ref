@@ -35,55 +35,42 @@ const GET_REFERENCES_TO_APPROVE = gql`
   }
 `;
 
-const UPDATE_REFERENCE = gql`
-  mutation UpdateReference(
-    $id: ID!
-    $artworkDescription: String
-    $artworkYear: Int
-    $size: String
-    $currentLocation: String
-  ) {
-    updateReference(
-      id: $id
-      artworkDescription: $artworkDescription
-      artworkYear: $artworkYear
-      size: $size
-      currentLocation: $currentLocation
-    ) {
-      id
-      # Include other fields you need in the response
-    }
-  }
-`;
-
 const AdminAccount = () => {
-  const [artwork, setArtwork] = useState();
-  const [artist, setArtist] = useState();
-  const [sceneDescription, setSceneDescription] = useState();
-  const [title, setTitle] = useState();
-  const [year, setYear] = useState();
-  const [episode, setEpisode] = useState();
-  const [season, setSeason] = useState();
-  const [artworkDescription, setArtworkDescription] = useState();
-  const [artworkYear, setArtworkYear] = useState();
-  const [size, setArtworkSize] = useState();
-  const [currentLocation, setCurrentLocation] = useState();
+  const [artworkTitle, setArtworkTitle] = useState('');
+  const [artist, setArtist] = useState('');
+  const [sceneDescription, setSceneDescription] = useState('');
+  const [title, setTitle] = useState('');
+  const [year, setYear] = useState('');
+  const [episode, setEpisode] = useState('');
+  const [season, setSeason] = useState('');
+  const [artworkDescription, setArtworkDescription] = useState('');
+  const [artworkYear, setArtworkYear] = useState('');
+  const [size, setArtworkSize] = useState('');
+  const [currentLocation, setCurrentLocation] = useState('');
   const [editData, setEditData] = useState(null);
-  const [updateReference] = useMutation(UPDATE_REFERENCE);
+  const [productionType, setProductionType] = useState('');
 
-  const { loading, error, data } = useQuery(GET_REFERENCES_TO_APPROVE, {
-    fetchPolicy: 'cache-and-network',
-  });
+  const { loading, error, data, refetch } = useQuery(
+    GET_REFERENCES_TO_APPROVE,
+    {
+      fetchPolicy: 'cache-and-network',
+    }
+  );
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
 
   const handleEditClick = (reference) => {
-    setArtwork(reference.artworkTitle);
+    setArtworkTitle(reference.artworkTitle);
     setArtist(reference.artist);
     setSceneDescription(reference.sceneDescription);
     setTitle(reference.productionTitle);
     setYear(reference.productionYear);
+    setProductionType(reference.productionType);
+    setArtworkYear(reference.artworkYear);
+    setArtworkSize(reference.size);
+    setArtworkDescription(reference.artworkDescription);
+    setCurrentLocation(reference.currentLocation);
 
     if (reference.productionType === 'series') {
       setEpisode(reference.episode);
@@ -99,21 +86,109 @@ const AdminAccount = () => {
     }
   };
 
-  const handleEditFormSubmit = () => {
-    // Send the mutation to update the reference
-    updateReference({
-      variables: {
-        id: editData.id,
-        artworkDescription: editData.artworkDescription,
-        artworkYear: editData.artworkYear,
-        size: editData.size,
-        currentLocation: editData.currentLocation,
-      },
-      // Refetch the data after the update to refresh the UI
-      refetchQueries: [{ query: GET_REFERENCES_TO_APPROVE }],
-    });
-    // Clear the editData state
-    setEditData(null);
+  const handleEditFormSubmit = async (e) => {
+    e.preventDefault();
+
+    const clearArtworkDescription = artworkDescription.replace(/"/g, "'");
+    const escapedArtworkDescription = JSON.stringify(clearArtworkDescription);
+
+    // Construct the GraphQL mutation
+    const graphqlMutation = `
+      mutation {
+        createReference(
+          id: ${editData},
+          productionType: "${productionType}",
+          artworkDescription: ${escapedArtworkDescription},
+          artworkYear: ${artworkYear},
+          artworkTitle: "${artworkTitle}",
+          size: "${size}",
+          currentLocation: "${currentLocation}",
+          productionTitle: "${title}",
+          productionYear: ${year},
+          episode: ${episode},
+          season: ${season},
+          artist: "${artist}",
+          sceneDescription: "${sceneDescription}"
+        ) {
+          success
+          message
+        }
+      }
+    `;
+
+    try {
+      // Send the GraphQL request to your server
+      const graphqlResponse = await fetch('http://127.0.0.1:4000/graphql', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query: graphqlMutation }),
+      });
+
+      // Handle the response from the server
+      const result = await graphqlResponse.json();
+
+      if (result.data.createReference.success) {
+        // setSubmissionStatus({
+        //   success: true,
+        //   message: 'Reference sent successfully!',
+        // });
+        refetch();
+        setEditData(null);
+      } else {
+        // setSubmissionStatus({
+        //   success: false,
+        //   message: 'Something went wrong.',
+        // });
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  const handleDeleteClick = async (id) => {
+    // Construct the GraphQL mutation
+    const graphqlMutation = `
+      mutation {
+        deleteReference(
+          id: ${id},
+        ) {
+          success
+          message
+        }
+      }
+    `;
+
+    try {
+      // Send the GraphQL request to your server
+      const graphqlResponse = await fetch('http://127.0.0.1:4000/graphql', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query: graphqlMutation }),
+      });
+
+      // Handle the response from the server
+      const result = await graphqlResponse.json();
+
+      if (result.data.deleteReference.success) {
+        // setSubmissionStatus({
+        //   success: true,
+        //   message: 'Reference sent successfully!',
+        // });
+        refetch();
+        setEditData(null);
+      } else {
+        // setSubmissionStatus({
+        //   success: false,
+        //   message: 'Something went wrong.',
+        // });
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
   const cards = data.references.map((card, key) => {
@@ -121,7 +196,7 @@ const AdminAccount = () => {
 
     return (
       <Grid item xs={12}>
-        <Card xs={12} sx={{ display: 'flex', flexWrap: 'wrap' }}>
+        <Card xs={12} sx={{ display: 'flex', flexWrap: 'no-wrap' }}>
           <CardMedia
             xs={4}
             component="img"
@@ -157,6 +232,7 @@ const AdminAccount = () => {
                 variant="outlined"
                 color="error"
                 size="medium"
+                onClick={() => handleDeleteClick(card.id)}
                 disabled={editMode ? 'disabled' : false}
               >
                 Delete
@@ -169,20 +245,37 @@ const AdminAccount = () => {
                   <Typography gutterBottom variant="body1" component="p">
                     <b>Artwork Title: </b>
                     {card.artworkTitle}
+                    {card.artworkYear ? ` (${card.artworkYear})` : ''}
                   </Typography>
                   <Typography gutterBottom variant="body1" component="p">
                     <b>Artist: </b>
                     {card.artist}
                   </Typography>
+
+                  {card.size && (
+                    <Typography gutterBottom variant="body1" component="p">
+                      <b>Artwork Size: </b>
+                      {card.size}
+                    </Typography>
+                  )}
+
+                  {card.artworkDescription && (
+                    <Typography gutterBottom variant="body1" component="p">
+                      <b>Artwork Description: </b>
+                      {card.artworkDescription}
+                    </Typography>
+                  )}
+
                   <Typography gutterBottom variant="body1" component="p">
                     <b>Referenced in: </b>
                     {card.productionType} {card.productionTitle}&nbsp;(
                     {card.productionYear})
+                    {card.episode &&
+                      card.season &&
+                      ` - S${card.season}E${card.episode}`}
                   </Typography>
-
                   <Typography variant="body1" sx={{ textAlign: 'justify' }}>
                     <b>Scene Description: </b>
-
                     {card.sceneDescription}
                   </Typography>
                 </>
@@ -287,9 +380,9 @@ const AdminAccount = () => {
                           <Input
                             name="artwork"
                             type="text"
-                            value={artwork}
+                            value={artworkTitle}
                             onChange={(e) => {
-                              setArtwork(e.target.value);
+                              setArtworkTitle(e.target.value);
                             }}
                           />
                         </FormControl>
@@ -413,8 +506,13 @@ const AdminAccount = () => {
 
   return (
     <Grid container spacing={4} px={4}>
-      <Typography variant="h4" component="h3" px={3} sx={{ marginTop: '1em' }}>
-        References to approve:
+      <Typography
+        variant="h4"
+        component="h3"
+        px={3}
+        sx={{ marginTop: '1em', fontFamily: 'Staatliches' }}
+      >
+        Refs to approve:
       </Typography>
       {cards}
     </Grid>
