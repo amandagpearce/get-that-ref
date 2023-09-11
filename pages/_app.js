@@ -7,6 +7,8 @@ import { SearchProvider } from '../context/SearchContext';
 import { Container } from '@mui/material';
 import { client } from '../apollo';
 import { ApolloProvider } from '@apollo/client';
+import Link from 'next/link';
+import StarIcon from '@mui/icons-material/Star';
 
 export default function App({ Component, pageProps }) {
   return (
@@ -19,7 +21,19 @@ export default function App({ Component, pageProps }) {
       </Head>
 
       <Marquee>
-        SEEN A VISUAL ARTS REFERENCE IN MOVIES OR SERIES? SEND IT TO US HERE
+        SEEN A VISUAL ARTS REFERENCE IN MOVIES OR SERIES?{' '}
+        <Link
+          style={{ color: '#fff', textDecoration: 'none' }}
+          href="/send-a-reference"
+        >
+          <StarIcon sx={{ marginX: '5px' }} />
+          ADD
+          <em style={{ color: '#ff69de', fontStyle: 'normal' }}>
+            &nbsp;NEW REFERENCE&nbsp;
+          </em>
+          FORM HERE
+          <StarIcon sx={{ marginX: '5px' }} />
+        </Link>
       </Marquee>
 
       <SearchProvider>
