@@ -8,6 +8,8 @@ import Button from '@mui/joy/Button';
 import Radio from '@mui/joy/Radio';
 import RadioGroup from '@mui/joy/RadioGroup';
 import Grid from '@mui/material/Grid';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ErrorIcon from '@mui/icons-material/Error';
 
 const SendAReference = () => {
   const [artwork, setArtwork] = useState('');
@@ -19,7 +21,10 @@ const SendAReference = () => {
   const [episode, setEpisode] = useState(null);
   const [season, setSeason] = useState(null);
   const [file, setFile] = useState(null);
-  const [sceneImgUrl, setSceneImgUrl] = useState();
+  const [submissionStatus, setSubmissionStatus] = useState({
+    success: false,
+    message: '',
+  });
 
   const [validity, setValidity] = useState({
     title: false,
@@ -45,17 +50,31 @@ const SendAReference = () => {
     // This will ensure the component is rendered on the client side.
   }, []);
 
+  const clearForm = () => {
+    setArtwork('');
+    setArtist('');
+    setSceneDescription('');
+    setTitle('');
+    setYear('');
+    setEpisode('');
+    setSeason('');
+    setFile(null);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (isFormValid()) {
       try {
         if (file) {
-          // console.log('file', file);
+          const formData = new FormData();
+          formData.append('file', file); // Append the Blob object
+          formData.append('mimeType', file.type); // Append the MIME type
+
           // Make a POST request to the /api/uploadToS3 route
           const response = await fetch('/api/s3Upload', {
             method: 'POST',
-            body: file,
+            body: formData,
           });
 
           if (response.ok) {
@@ -113,9 +132,27 @@ const SendAReference = () => {
 
             // Handle the response from the server (unchanged)
             const result = await graphqlResponse.json();
-            console.log(result);
+
+            console.log('result.data', result.data);
+
+            if (result.data.createReference.success) {
+              setSubmissionStatus({
+                success: true,
+                message: 'Reference sent successfully!',
+              });
+              clearForm();
+            } else {
+              setSubmissionStatus({
+                success: false,
+                message: 'Something went wrong.',
+              });
+            }
           } else {
             console.error('Error uploading to S3:', response.status);
+            setSubmissionStatus({
+              success: false,
+              message: 'Something went wrong with the file upload.',
+            });
           }
         }
       } catch (error) {
@@ -163,16 +200,16 @@ const SendAReference = () => {
     }
 
     // initializes the FileReader web API
-    const fileReader = new FileReader();
+    // const fileReader = new FileReader();
 
-    fileReader.onload = (e) => {
-      const binaryData = e.target.result; // This will be a byte array (binary data)
-      console.log('binaryData', binaryData);
-      setSceneImgUrl(binaryData); // Set the binary data as the sceneImgUrl
-    };
+    // fileReader.onload = (e) => {
+    //   const binaryData = e.target.result; // This will be a byte array (binary data)
+    //   console.log('binaryData', binaryData);
+    //   setSceneImgUrl(binaryData); // Set the binary data as the sceneImgUrl
+    // };
 
-    // Use readAsArrayBuffer to read the file as binary data
-    fileReader.readAsArrayBuffer(file);
+    // // Use readAsArrayBuffer to read the file as binary data
+    // fileReader.readAsArrayBuffer(file);
   }, [file]);
 
   const handleFileChange = (event) => {
@@ -180,7 +217,8 @@ const SendAReference = () => {
 
     if (selectedFile) {
       const blob = new Blob([selectedFile], { type: selectedFile.type });
-      setFile(selectedFile);
+      console.log('blob.type', blob.type);
+      setFile(blob);
     } else {
       setSceneImgUrl(null);
       setFile(null);
@@ -411,7 +449,7 @@ const SendAReference = () => {
                 Scene screenshot/print/image
               </FormLabel>
               <Input
-                name="sceneImage"
+                name="file"
                 type="file"
                 accept=".png, .jpeg, .jpg"
                 onChange={handleFileChange}
@@ -425,6 +463,37 @@ const SendAReference = () => {
             xs={12}
             sx={{ display: 'flex', justifyContent: 'flex-end' }}
           >
+            {/* Display the success message if submission was successful */}
+            {submissionStatus.success && (
+              <Typography
+                sx={{
+                  color: 'green',
+                  fontSize: '1.3em',
+                  display: 'flex',
+                  alignItems: 'center',
+                  margin: '0 20px',
+                }}
+              >
+                <CheckCircleIcon sx={{ marginX: '5px' }} />{' '}
+                {submissionStatus.message}
+              </Typography>
+            )}
+
+            {/* Display the error message if there was an error */}
+            {!submissionStatus.success && submissionStatus.message && (
+              <Typography
+                sx={{
+                  color: 'red',
+                  fontSize: '1.3em',
+                  display: 'flex',
+                  alignItems: 'center',
+                  margin: '0 20px',
+                }}
+              >
+                <ErrorIcon sx={{ marginX: '5px' }} /> {submissionStatus.message}
+              </Typography>
+            )}
+
             <Button
               type="submit"
               sx={{
@@ -435,7 +504,7 @@ const SendAReference = () => {
                 fontSize: '1.1rem',
                 opacity: '1',
                 filter: `grayscale(${isFormValid() ? 0 : 1})`, // Apply grayscale filter when disabled
-                color: isFormValid() ? 'white' : '#000', // Change color to black when disabled
+                color: isFormValid() ? 'white' : '#000!important', // Change color to black when disabled
               }}
               disabled={!isFormValid()}
             >

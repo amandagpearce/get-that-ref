@@ -1,36 +1,47 @@
-// util/uploadToS3.js
+// Import necessary modules
+import multer from 'multer';
+import multerS3 from 'multer-s3';
 import AWS from 'aws-sdk';
-import { v4 as uuidv4 } from 'uuid';
 
-export default async (fileData) => {
-  try {
-    // Initialize AWS SDK with credentials from environment variables
-    AWS.config.update({
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-      region: process.env.AWS_REGION,
-    });
+// Create an instance of AWS S3
+console.log('process.env.AWS_ACCESS_KEY_ID', process.env.AWS_ACCESS_KEY_ID);
+console.log(
+  'process.env.AWS_SECRET_ACCESS_KEY',
+  process.env.AWS_SECRET_ACCESS_KEY
+);
+console.log('process.env.AWS_REGION', process.env.AWS_REGION);
+console.log('process.env.AWS_BUCKET_NAME', process.env.AWS_BUCKET_NAME);
 
-    // Create an S3 instance
-    const s3 = new AWS.S3();
-
-    // Define the S3 bucket and file key
-    const bucketName = process.env.AWS_BUCKET_NAME;
-    const fileKey = `${uuidv4()}.jpg`;
-
-    // Create parameters for S3 upload
-    const params = {
-      Bucket: bucketName,
-      Key: fileKey,
-      Body: fileData, // Use the passed file data directly
-    };
-
-    // Upload the file to S3
-    await s3.upload(params).promise();
-
-    return fileKey; // Return the file key upon successful upload
-  } catch (error) {
-    console.error(error);
-    throw error; // Re-throw the error for further handling
-  }
+const MIME_TYPE_MAP = {
+  'image/png': 'png',
+  'image/jpeg': 'jpeg',
+  'image/jpg': 'jpg',
 };
+
+const s3 = new AWS.S3({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION,
+});
+
+// Create a multer storage instance with multer-s3
+const upload = multer({
+  storage: multerS3({
+    s3: s3,
+    bucket: process.env.AWS_BUCKET_NAME,
+    contentType: multerS3.AUTO_CONTENT_TYPE,
+    key: (req, file, callback) => {
+      const ext = MIME_TYPE_MAP[file.mimetype]; // rely on file and not req.body.mimeType
+      const filename = `${Date.now()}-${Math.floor(
+        Math.random() * 10000
+      )}.${ext}`;
+
+      callback(null, filename);
+    },
+  }),
+});
+
+// Middleware function to handle file upload
+const fileUploadMiddleware = upload.single('file'); // Assumes you have an input field with the name 'file'
+
+export default fileUploadMiddleware;
