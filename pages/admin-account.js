@@ -191,6 +191,81 @@ const AdminAccount = () => {
     }
   };
 
+  const handleApproveClick = async (card) => {
+    // Construct the GraphQL mutation
+    const graphqlMutation = `
+      mutation {
+        addInformation(
+          productionType: "${card.productionType}",
+          productionTitle: "${card.productionTitle}",
+          productionYear: ${card.productionYear},
+          artist: "${card.artist}",
+          artworkTitle: "${card.artworkTitle}",
+          artworkDescription: "${card.artworkDescription}",
+          artworkYear: ${card.artworkYear},
+          size: "${card.size}",
+          currentLocation: "${card.currentLocation}",
+          sceneDescription: "${card.sceneDescription}",
+          season: ${card.season},
+          episode: ${card.episode},
+          sceneImgUrl: "${card.sceneImgUrl}"
+        ) {
+          success
+          message
+        }
+      }
+    `;
+
+    // mutation {
+    //   addInformation(
+    //     artist: "Frida Kahlo",
+    //     artworkTitle: "Self-Portrait as a Tehuana",
+    //     year: 1943,
+    //     size: "76 cm x 61 cm",
+    //     currentLocation: "North Carolina Museum of Art",
+    //     description: "The depth of emotion and symbolism in this artwork is striking. Kahlo's gaze is intense and introspective, conveying a sense of self-awareness and resilience. The Tehuana costume becomes a powerful symbol of both her Mexican heritage and her personal struggle with physical and emotional pain. It is within these layers of symbolism that viewers can explore the complexities of Kahlo's life and her unapologetic approach to self-representation. 'Self-Portrait as a Tehuana' continues to resonate with art enthusiasts worldwide, not only for its technical brilliance but also for its ability to evoke a profound sense of empathy and connection with the artist's tumultuous life journey.",
+    //     productionType: "series",
+    //     productionTitle: "Euphoria",
+    //     season: 2,
+    //     episode: 4,
+    //     sceneDescription: "Jules recreates a famous work of art by Frida Kahlo, appearing with a portrait of love interest Rue painted on her forehead."
+    //   ) {
+    //     success
+    //     message
+    //   }
+    // }
+
+    try {
+      // Send the GraphQL request to your server
+      const graphqlResponse = await fetch('http://127.0.0.1:4000/graphql', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query: graphqlMutation }),
+      });
+
+      // Handle the response from the server
+      const result = await graphqlResponse.json();
+
+      if (result.data.addInformation.success) {
+        // setSubmissionStatus({
+        //   success: true,
+        //   message: 'Reference sent successfully!',
+        // });
+        refetch();
+        setEditData(null);
+      } else {
+        // setSubmissionStatus({
+        //   success: false,
+        //   message: 'Something went wrong.',
+        // });
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
   const cards = data.references.map((card, key) => {
     const editMode = editData === card.id;
 
@@ -224,6 +299,7 @@ const AdminAccount = () => {
                 variant="outlined"
                 color="success"
                 size="medium"
+                onClick={() => handleApproveClick(card)}
                 disabled={editMode ? 'disabled' : false}
               >
                 Approve
