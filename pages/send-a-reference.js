@@ -198,18 +198,6 @@ const SendAReference = () => {
     if (!file) {
       return;
     }
-
-    // initializes the FileReader web API
-    // const fileReader = new FileReader();
-
-    // fileReader.onload = (e) => {
-    //   const binaryData = e.target.result; // This will be a byte array (binary data)
-    //   console.log('binaryData', binaryData);
-    //   setSceneImgUrl(binaryData); // Set the binary data as the sceneImgUrl
-    // };
-
-    // // Use readAsArrayBuffer to read the file as binary data
-    // fileReader.readAsArrayBuffer(file);
   }, [file]);
 
   const handleFileChange = (event) => {
@@ -293,7 +281,9 @@ const SendAReference = () => {
             <Grid container alignItems="center">
               <Grid item xs={12}>
                 <FormControl>
-                  <FormLabel sx={{ fontSize: '1.1rem' }}>Title*</FormLabel>
+                  <FormLabel sx={{ fontSize: '1.1rem' }}>
+                    {isMovie ? 'Movie' : 'Series '} Title*
+                  </FormLabel>
                   <Input
                     name="title"
                     type="text"
