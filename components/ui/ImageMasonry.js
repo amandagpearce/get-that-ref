@@ -5,18 +5,21 @@ import styles from './ImageMasonry.module.css';
 import { useQuery, gql } from '@apollo/client';
 
 import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
-import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import { Grid } from '@mui/material';
 
 const ImageMasonry = ({ itemData }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedProductionId, setSelectedProductionId] = useState(null);
   const [productionType, setProductionType] = useState(); // Set initial value
   const [activeImages, setActiveImages] = useState([]); // Define activeImages in state
-  const [artworks, setArtworks] = useState([]); // Define artworks in state
+  const [references, setReferences] = useState([]); // Define artworks in state
+
+  const sortedItemData = [...itemData].sort((a, b) =>
+    a.productionTitle.localeCompare(b.productionTitle)
+  );
 
   const GET_SERIES_ARTWORKS = gql`
     query GetSeriesArtworks($productionId: Int!, $productionType: String!) {
@@ -24,6 +27,11 @@ const ImageMasonry = ({ itemData }) => {
         productionId: $productionId
         productionType: $productionType
       ) {
+        id
+        sceneDescription
+        sceneImgUrl
+        season
+        episode
         artworks {
           id
           artist
@@ -44,6 +52,9 @@ const ImageMasonry = ({ itemData }) => {
         productionId: $productionId
         productionType: $productionType
       ) {
+        id
+        sceneDescription
+        sceneImgUrl
         artworks {
           id
           artist
@@ -78,15 +89,13 @@ const ImageMasonry = ({ itemData }) => {
   // Use useEffect to update artworks when data changes
   useEffect(() => {
     if (data) {
-      const fetchedArtworks =
-        productionType === 'series'
-          ? data.seriesScenes && data.seriesScenes[0]?.artworks
-          : data.movieScenes && data.movieScenes[0].artworks;
+      const fetchedRefs =
+        productionType === 'series' ? data.seriesScenes : data.movieScenes;
 
-      console.log('Fetched Artworks:', fetchedArtworks);
+      console.log('Fetched Refs:', fetchedRefs);
 
       // Update the artworks state
-      setArtworks(fetchedArtworks || []);
+      setReferences(fetchedRefs || []);
     }
   }, [data, productionType]);
 
@@ -122,7 +131,7 @@ const ImageMasonry = ({ itemData }) => {
   return (
     <Box>
       <Masonry columns={6} spacing={3}>
-        {itemData.map((item, index) => (
+        {sortedItemData.map((item, index) => (
           <div
             key={index}
             data-series-year={item.year}
@@ -133,62 +142,139 @@ const ImageMasonry = ({ itemData }) => {
                 ? ''
                 : styles['inactive']
             }`}
-            onClick={() => handleImageClick(item)}
           >
             <img
               src={`${item.imageUrl}?w=690&auto=format`}
               srcSet={`${item.imageUrl}?w=690&auto=format&dpr=2 2x`}
               alt={item.title}
               loading="lazy"
+              onClick={() => handleImageClick(item)}
               className={styles['image']}
             />
 
             {selectedImage === item && ( // Check if the selectedImage matches the current item
               <div className={styles['references-container']}>
-                {loading && <p>Loading artworks...</p>}
-                {error && <p>Error fetching artworks: {error.message}</p>}
-                {artworks && (
-                  <ul>
-                    {artworks.map((artwork) => (
-                      <li key={artwork.id} item xs={12}>
+                {loading && <p>Loading references...</p>}
+                {error && <p>Error fetching references: {error.message}</p>}
+                {references && (
+                  <Grid item xs={12}>
+                    {references.map((reference, key) => {
+                      const artwork = reference.artworks[0]; // Get the first artwork from the artworks array
+
+                      return (
                         <Card
+                          key={key}
                           xs={12}
-                          sx={{ display: 'flex', boxShadow: 'none' }}
-                          className={styles['references-card']}
+                          sx={{ display: 'flex', flexWrap: 'no-wrap' }}
                         >
                           <CardMedia
+                            xs={4}
                             component="img"
-                            alt={artwork.artworkTitle}
+                            alt={reference.productionTitle}
                             height="auto"
-                            style={{ maxWidth: '600px' }}
+                            style={{ maxWidth: '500px', objectFit: 'contain' }}
+                            image={
+                              reference.sceneImgUrl
+                                ? reference.sceneImgUrl
+                                : 'https://placehold.co/500x450'
+                            }
+                          />
+                          <CardMedia
+                            xs={4}
+                            component="img"
+                            alt={reference.productionTitle}
+                            height="auto"
+                            style={{ maxWidth: '500px', objectFit: 'contain' }}
                             image={
                               artwork.imageUrl
                                 ? artwork.imageUrl
                                 : 'https://placehold.co/500x450'
                             }
                           />
-                          <CardContent sx={{ boxShadow: 'none' }}>
-                            <Typography
-                              gutterBottom
-                              variant="h6"
-                              component="h6"
-                              px={6}
+                          <CardContent xs={8} sx={{ boxShadow: 'none' }}>
+                            <div
+                              style={{ padding: '0 10px', marginTop: '10px' }}
                             >
-                              {artwork.artworkTitle} <b>({artwork.artist})</b>
-                            </Typography>
-                            <Typography gutterBottom px={6} py={1}></Typography>
-                            <Typography
-                              color="text.secondary"
-                              px={6}
-                              sx={{ textAlign: 'justify', fontSize: '1.3em' }}
-                            >
-                              {artwork.description}
-                            </Typography>
+                              <Typography
+                                gutterBottom
+                                sx={{ fontSize: '1.3em' }}
+                                component="p"
+                              >
+                                <b>Scene Description: </b>
+                                {reference.sceneDescription || 'N/A'}
+                              </Typography>
+                              <Typography
+                                gutterBottom
+                                sx={{ fontSize: '1.3em' }}
+                                component="p"
+                              >
+                                <b>Season: </b>
+                                {reference.season || 'N/A'}
+                              </Typography>
+                              <Typography
+                                gutterBottom
+                                sx={{ fontSize: '1.3em' }}
+                                component="p"
+                              >
+                                <b>Episode: </b>
+                                {reference.episode || 'N/A'}
+                              </Typography>
+                              <Typography
+                                gutterBottom
+                                sx={{ fontSize: '1.3em' }}
+                                component="p"
+                              >
+                                <b>Artwork Title: </b>
+                                {artwork.artworkTitle || 'N/A'}
+                                {artwork.year ? ` (${artwork.year})` : ''}
+                              </Typography>
+                              <Typography
+                                gutterBottom
+                                sx={{ fontSize: '1.3em' }}
+                                component="p"
+                              >
+                                <b>Artist: </b>
+                                {artwork.artist || 'N/A'}
+                              </Typography>
+                              {artwork.size && (
+                                <Typography
+                                  gutterBottom
+                                  sx={{ fontSize: '1.3em' }}
+                                  component="p"
+                                >
+                                  <b>Artwork Size: </b>
+                                  {artwork.size}
+                                </Typography>
+                              )}
+                              {artwork.description && (
+                                <Typography
+                                  gutterBottom
+                                  sx={{ fontSize: '1.3em' }}
+                                  component="p"
+                                >
+                                  <b>Artwork Description: </b>
+                                  {artwork.description}
+                                </Typography>
+                              )}
+                              <Typography
+                                gutterBottom
+                                sx={{ fontSize: '1.3em' }}
+                                component="p"
+                              >
+                                <b>Referenced in: </b>
+                                {reference.productionType}{' '}
+                                {reference.productionTitle} (
+                                {reference.productionYear || 'N/A'})
+                                {reference.episode &&
+                                  reference.season &&
+                                  ` - S${reference.season}E${reference.episode}`}
+                              </Typography>
+                            </div>
                           </CardContent>
                         </Card>
-                      </li>
-                    ))}
-                  </ul>
+                      );
+                    })}
+                  </Grid>
                 )}
               </div>
             )}
