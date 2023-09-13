@@ -6,9 +6,8 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import { Grid, Container } from '@mui/material';
+import { Grid } from '@mui/material';
 import { useQuery, gql } from '@apollo/client';
-import { useMutation } from '@apollo/client';
 import Sheet from '@mui/joy/Sheet';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
@@ -91,30 +90,54 @@ const AdminAccount = () => {
 
     const clearArtworkDescription = artworkDescription.replace(/"/g, "'");
     const escapedArtworkDescription = JSON.stringify(clearArtworkDescription);
+    let graphqlMutation;
 
     // Construct the GraphQL mutation
-    const graphqlMutation = `
-      mutation {
-        createReference(
-          id: ${editData},
-          productionType: "${productionType}",
-          artworkDescription: ${escapedArtworkDescription},
-          artworkYear: ${artworkYear},
-          artworkTitle: "${artworkTitle}",
-          size: "${size}",
-          currentLocation: "${currentLocation}",
-          productionTitle: "${title}",
-          productionYear: ${year},
-          episode: ${episode},
-          season: ${season},
-          artist: "${artist}",
-          sceneDescription: "${sceneDescription}"
-        ) {
-          success
-          message
+    if (productionType === 'series') {
+      graphqlMutation = `
+        mutation {
+          createReference(
+            id: ${editData},
+            productionType: "${productionType}",
+            artworkDescription: ${escapedArtworkDescription},
+            artworkYear: ${artworkYear},
+            artworkTitle: "${artworkTitle}",
+            size: "${size}",
+            currentLocation: "${currentLocation}",
+            productionTitle: "${title}",
+            productionYear: ${year},
+            episode: ${episode},
+            season: ${season},
+            artist: "${artist}",
+            sceneDescription: "${sceneDescription}"
+          ) {
+            success
+            message
+          }
         }
-      }
-    `;
+      `;
+    } else {
+      graphqlMutation = `
+        mutation {
+          createReference(
+            id: ${editData},
+            productionType: "${productionType}",
+            artworkDescription: ${escapedArtworkDescription},
+            artworkYear: ${artworkYear},
+            artworkTitle: "${artworkTitle}",
+            size: "${size}",
+            currentLocation: "${currentLocation}",
+            productionTitle: "${title}",
+            productionYear: ${year},
+            artist: "${artist}",
+            sceneDescription: "${sceneDescription}"
+          ) {
+            success
+            message
+          }
+        }
+      `;
+    }
 
     try {
       // Send the GraphQL request to your server
@@ -193,7 +216,12 @@ const AdminAccount = () => {
 
   const handleApproveClick = async (card) => {
     // Construct the GraphQL mutation
-    const graphqlMutation = `
+    let graphqlMutation;
+
+    console.log('card.productionType', card.productionType);
+
+    if (card.productionType === 'series') {
+      graphqlMutation = `
       mutation {
         addInformation(
           productionType: "${card.productionType}",
@@ -215,6 +243,28 @@ const AdminAccount = () => {
         }
       }
     `;
+    } else {
+      graphqlMutation = `
+      mutation {
+        addInformation(
+          productionType: "${card.productionType}",
+          productionTitle: "${card.productionTitle}",
+          productionYear: ${card.productionYear},
+          artist: "${card.artist}",
+          artworkTitle: "${card.artworkTitle}",
+          artworkDescription: "${card.artworkDescription}",
+          artworkYear: ${card.artworkYear},
+          size: "${card.size}",
+          currentLocation: "${card.currentLocation}",
+          sceneDescription: "${card.sceneDescription}",
+          sceneImgUrl: "${card.sceneImgUrl}"
+        ) {
+          success
+          message
+        }
+      }
+    `;
+    }
 
     // mutation {
     //   addInformation(
