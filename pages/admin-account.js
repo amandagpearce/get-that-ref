@@ -321,6 +321,7 @@ const AdminAccount = () => {
         });
 
         resetSubmissionMessage();
+        handleDeleteClick(card.id);
 
         refetch();
         setEditData(null);
