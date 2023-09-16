@@ -12,6 +12,8 @@ import Sheet from '@mui/joy/Sheet';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import Input from '@mui/joy/Input';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ErrorIcon from '@mui/icons-material/Error';
 
 const GET_REFERENCES_TO_APPROVE = gql`
   query {
@@ -48,6 +50,10 @@ const AdminAccount = () => {
   const [currentLocation, setCurrentLocation] = useState('');
   const [editData, setEditData] = useState(null);
   const [productionType, setProductionType] = useState('');
+  const [submissionStatus, setSubmissionStatus] = useState({
+    success: false,
+    message: '',
+  });
 
   const { loading, error, data, refetch } = useQuery(
     GET_REFERENCES_TO_APPROVE,
@@ -153,17 +159,22 @@ const AdminAccount = () => {
       const result = await graphqlResponse.json();
 
       if (result.data.createReference.success) {
-        // setSubmissionStatus({
-        //   success: true,
-        //   message: 'Reference sent successfully!',
-        // });
+        setSubmissionStatus({
+          success: true,
+          message: 'Reference sent successfully!',
+        });
+
+        resetSubmissionMessage();
+
         refetch();
         setEditData(null);
       } else {
-        // setSubmissionStatus({
-        //   success: false,
-        //   message: 'Something went wrong.',
-        // });
+        setSubmissionStatus({
+          success: false,
+          message: 'Something went wrong.',
+        });
+
+        resetSubmissionMessage();
       }
     } catch (error) {
       console.error('Error:', error);
@@ -197,17 +208,22 @@ const AdminAccount = () => {
       const result = await graphqlResponse.json();
 
       if (result.data.deleteReference.success) {
-        // setSubmissionStatus({
-        //   success: true,
-        //   message: 'Reference sent successfully!',
-        // });
+        setSubmissionStatus({
+          success: true,
+          message: 'Reference deleted successfully!',
+        });
+
+        resetSubmissionMessage();
+
         refetch();
         setEditData(null);
       } else {
-        // setSubmissionStatus({
-        //   success: false,
-        //   message: 'Something went wrong.',
-        // });
+        setSubmissionStatus({
+          success: false,
+          message: 'Something went wrong with deleting this ref.',
+        });
+
+        resetSubmissionMessage();
       }
     } catch (error) {
       console.error('Error:', error);
@@ -299,35 +315,53 @@ const AdminAccount = () => {
       const result = await graphqlResponse.json();
 
       if (result.data.addInformation.success) {
-        // setSubmissionStatus({
-        //   success: true,
-        //   message: 'Reference sent successfully!',
-        // });
+        setSubmissionStatus({
+          success: true,
+          message: 'Reference sent successfully!',
+        });
+
+        resetSubmissionMessage();
+
         refetch();
         setEditData(null);
-      } else {
-        // setSubmissionStatus({
-        //   success: false,
-        //   message: 'Something went wrong.',
-        // });
       }
     } catch (error) {
       console.error('Error:', error);
+
+      setSubmissionStatus({
+        success: false,
+        message: 'Something went wrong.',
+      });
+
+      resetSubmissionMessage();
     }
+  };
+
+  const resetSubmissionMessage = () => {
+    setTimeout(() => {
+      setSubmissionStatus({
+        success: false,
+        message: '',
+      });
+    }, 3000);
   };
 
   const cards = data.references.map((card, key) => {
     const editMode = editData === card.id;
 
     return (
-      <Grid item xs={12}>
-        <Card xs={12} sx={{ display: 'flex', flexWrap: 'no-wrap' }}>
+      <Grid item xs={12} key={key}>
+        <Card
+          xs={12}
+          id={card.id}
+          sx={{ display: 'flex', flexWrap: 'no-wrap' }}
+        >
           <CardMedia
             xs={4}
             component="img"
             alt={card.productionTitle}
             height="auto"
-            style={{ maxWidth: '500px' }}
+            style={{ maxWidth: '300px' }}
             image={
               card.sceneImgUrl
                 ? card.sceneImgUrl
@@ -630,6 +664,8 @@ const AdminAccount = () => {
     );
   });
 
+  const content = !!cards ? {} : <p>Nothing to approve.</p>;
+
   return (
     <Grid container spacing={4} px={4}>
       <Typography
@@ -640,7 +676,56 @@ const AdminAccount = () => {
       >
         Refs to approve:
       </Typography>
+
       {cards}
+
+      {submissionStatus.success && (
+        <Typography
+          sx={{
+            color: 'green',
+            fontSize: '1.3em',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+            margin: '20px 0',
+            width: '100%',
+          }}
+        >
+          <CheckCircleIcon sx={{ marginX: '5px' }} /> {submissionStatus.message}
+        </Typography>
+      )}
+
+      {/* Display the error message if there was an error */}
+      {!submissionStatus.success && submissionStatus.message && (
+        <Typography
+          sx={{
+            color: 'red',
+            fontSize: '1.3em',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+            margin: '20px 0',
+            width: '100%',
+          }}
+        >
+          <ErrorIcon sx={{ marginX: '5px' }} /> {submissionStatus.message}
+        </Typography>
+      )}
+
+      {!cards.length && (
+        <Typography
+          sx={{
+            fontSize: '1.3em',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '20px 0',
+            width: '100%',
+          }}
+        >
+          Nothing to approve yet.
+        </Typography>
+      )}
     </Grid>
   );
 };

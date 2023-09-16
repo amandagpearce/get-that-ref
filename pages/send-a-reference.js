@@ -4,12 +4,14 @@ import Typography from '@mui/joy/Typography';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import Input from '@mui/joy/Input';
-import Button from '@mui/joy/Button';
 import Radio from '@mui/joy/Radio';
 import RadioGroup from '@mui/joy/RadioGroup';
 import Grid from '@mui/material/Grid';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
+import { styled } from '@mui/material/styles';
+import Button from '@mui/material/Button';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 const SendAReference = () => {
   const [artwork, setArtwork] = useState('');
@@ -18,9 +20,10 @@ const SendAReference = () => {
   const [isMovie, setIsMovie] = useState(true);
   const [title, setTitle] = useState('');
   const [year, setYear] = useState('');
-  const [episode, setEpisode] = useState(null);
-  const [season, setSeason] = useState(null);
-  const [file, setFile] = useState(null);
+  const [episode, setEpisode] = useState();
+  const [season, setSeason] = useState();
+  const [file, setFile] = useState();
+  const [fileName, setFileName] = useState();
   const [submissionStatus, setSubmissionStatus] = useState({
     success: false,
     message: '',
@@ -59,6 +62,7 @@ const SendAReference = () => {
     setEpisode('');
     setSeason('');
     setFile(null);
+    setFileName('');
   };
 
   const handleSubmit = async (e) => {
@@ -91,8 +95,8 @@ const SendAReference = () => {
                 productionYear: ${parseInt(year, 10)},
                 productionType: "${isMovie ? 'movie' : 'series'}",
                 productionTitle: "${title}",
-                ${season !== null ? `season: ${parseInt(season, 10)},` : ''}
-                ${episode !== null ? `episode: ${parseInt(episode, 10)},` : ''}
+                ${!!season ? `season: ${parseInt(season, 10)},` : ''}
+                ${!!episode ? `episode: ${parseInt(episode, 10)},` : ''}
                 sceneDescription: "${sceneDescription}",
                 sceneImgUrl: "${s3ImageUrl}"
               ) {
@@ -134,18 +138,33 @@ const SendAReference = () => {
             const result = await graphqlResponse.json();
 
             console.log('result.data', result.data);
-
             if (result.data.createReference.success) {
               setSubmissionStatus({
                 success: true,
                 message: 'Reference sent successfully!',
               });
+
+              // reset
+              setTimeout(() => {
+                setSubmissionStatus({
+                  success: false,
+                  message: '',
+                });
+              }, 3000);
+
               clearForm();
             } else {
               setSubmissionStatus({
                 success: false,
                 message: 'Something went wrong.',
               });
+
+              setTimeout(() => {
+                setSubmissionStatus({
+                  success: false,
+                  message: '',
+                });
+              }, 3000);
             }
           } else {
             console.error('Error uploading to S3:', response.status);
@@ -153,6 +172,13 @@ const SendAReference = () => {
               success: false,
               message: 'Something went wrong with the file upload.',
             });
+
+            setTimeout(() => {
+              setSubmissionStatus({
+                success: false,
+                message: '',
+              });
+            }, 3000);
           }
         }
       } catch (error) {
@@ -163,6 +189,7 @@ const SendAReference = () => {
   };
 
   const handleRadioChange = (event) => {
+    console.log(event.target.value === 'movie');
     setIsMovie(event.target.value === 'movie');
   };
 
@@ -204,6 +231,8 @@ const SendAReference = () => {
     const selectedFile = event.target.files[0];
 
     if (selectedFile) {
+      setFileName(selectedFile.name);
+
       const blob = new Blob([selectedFile], { type: selectedFile.type });
       console.log('blob.type', blob.type);
       setFile(blob);
@@ -212,6 +241,18 @@ const SendAReference = () => {
       setFile(null);
     }
   };
+
+  const VisuallyHiddenInput = styled('input')({
+    clip: 'rect(0 0 0 0)',
+    clipPath: 'inset(50%)',
+    height: 1,
+    overflow: 'hidden',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    whiteSpace: 'nowrap',
+    width: 1,
+  });
 
   return (
     <Sheet
@@ -438,13 +479,23 @@ const SendAReference = () => {
               <FormLabel sx={{ fontSize: '1.1rem' }}>
                 Scene screenshot/print/image
               </FormLabel>
-              <Input
-                name="file"
-                type="file"
-                accept=".png, .jpeg, .jpg"
-                onChange={handleFileChange}
-                sx={{ paddingTop: '7px' }}
-              />
+
+              <Button
+                component="label"
+                variant="contained"
+                startIcon={<CloudUploadIcon />}
+                sx={{ backgroundColor: '#777cf6' }}
+              >
+                Upload file
+                <VisuallyHiddenInput
+                  name="file"
+                  type="file"
+                  accept=".png, .jpeg, .jpg"
+                  onChange={handleFileChange}
+                />
+              </Button>
+              {fileName && <span>Selected file: {fileName}</span>}
+              {!fileName && <span>No file selected.</span>}
             </FormControl>
           </Grid>
 
