@@ -1,9 +1,65 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import LoginForm from '../components/ui/LoginForm';
 import SignupForm from '../components/ui/SignupForm';
-import { Grid, Container } from '@mui/material';
+import { Grid } from '@mui/material';
+
+import { useHttpClient } from '../hooks/http-hook';
+import AuthContext from '../context/auth-context';
+import { useRouter } from 'next/router';
 
 const LoginPage = () => {
+  const authContext = useContext(AuthContext);
+  const { isLoading, error, sendRequest, clearError } = useHttpClient();
+  const router = useRouter();
+
+  const authSubmitHandler = async (data) => {
+    console.log('data', data);
+    let endpoint, requestData;
+
+    if (data.login) {
+      endpoint = 'login';
+
+      requestData = JSON.stringify({
+        username: data.login.email,
+        password: data.login.password,
+      });
+    } else if (data.signup) {
+      endpoint = 'register';
+
+      requestData = JSON.stringify({
+        username: data.signup.email,
+        password: data.signup.password,
+      });
+      console.log('requestData', requestData);
+    }
+
+    try {
+      const responseData = await sendRequest(
+        `http://localhost:5000/${endpoint}`,
+        'POST',
+        requestData,
+        { 'Content-Type': 'application/json' } // without this the backend does not know what type of data they are receiving
+      );
+
+      console.log('responseData', responseData);
+
+      if (responseData.userType) {
+        console.log('userType', responseData.userType);
+        authContext.login(responseData.access_token, responseData.userType);
+
+        router.push('/admin-account');
+      } else {
+        authContext.login(responseData.access_token);
+
+        if (data.login) {
+          router.push('/send-a-reference');
+        }
+      }
+    } catch (err) {
+      console.log('error', err);
+    }
+  };
+
   return (
     <Grid container spacing={2}>
       <Grid
@@ -16,7 +72,7 @@ const LoginPage = () => {
           alignItems: 'flex-start',
         }}
       >
-        <LoginForm />
+        <LoginForm onSubmit={authSubmitHandler} />
       </Grid>
       <Grid
         item
@@ -48,7 +104,7 @@ const LoginPage = () => {
           alignItems: 'flex-start',
         }}
       >
-        <SignupForm />
+        <SignupForm onSubmit={authSubmitHandler} />
       </Grid>
     </Grid>
   );

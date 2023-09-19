@@ -10,7 +10,13 @@ import { ApolloProvider } from '@apollo/client';
 import Link from 'next/link';
 import StarIcon from '@mui/icons-material/Star';
 
+import useAuth from './../hooks/auth-hook';
+import AuthContext from './../context/auth-context';
+
 export default function App({ Component, pageProps }) {
+  const { token, login, logout, userType } = useAuth();
+  console.log('token', token);
+
   return (
     <>
       <Head>
@@ -36,17 +42,27 @@ export default function App({ Component, pageProps }) {
         </Link>
       </Marquee>
 
-      <SearchProvider>
-        <Header />
+      <AuthContext.Provider
+        value={{
+          isLoggedIn: !!token,
+          token: token,
+          userType: userType,
+          login,
+          logout,
+        }}
+      >
+        <SearchProvider>
+          <Header />
 
-        <ApolloProvider client={client}>
-          <Container maxWidth="xlg" style={{ background: '#efeffd' }}>
-            <main style={{ padding: '30px 0' }}>
-              <Component {...pageProps} />
-            </main>
-          </Container>
-        </ApolloProvider>
-      </SearchProvider>
+          <ApolloProvider client={client}>
+            <Container maxWidth="xlg" style={{ background: '#efeffd' }}>
+              <main style={{ padding: '30px 0' }}>
+                <Component {...pageProps} />
+              </main>
+            </Container>
+          </ApolloProvider>
+        </SearchProvider>
+      </AuthContext.Provider>
     </>
   );
 }

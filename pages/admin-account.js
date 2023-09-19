@@ -1,5 +1,5 @@
-import * as React from 'react';
-import { useState } from 'react';
+import React, { useEffect } from 'react';
+import { useState, useContext } from 'react';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
@@ -14,6 +14,9 @@ import FormLabel from '@mui/joy/FormLabel';
 import Input from '@mui/joy/Input';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
+
+import AuthContext from '../context/auth-context';
+import { useRouter } from 'next/router';
 
 const GET_REFERENCES_TO_APPROVE = gql`
   query {
@@ -37,6 +40,17 @@ const GET_REFERENCES_TO_APPROVE = gql`
 `;
 
 const AdminAccount = () => {
+  const authContext = useContext(AuthContext);
+  const router = useRouter();
+
+  useEffect(() => {
+    console.log('authContext', authContext);
+    // Check userType on the client side
+    if (authContext.userType !== 'admin') {
+      router.push('/login'); // Redirect to home page if not admin
+    }
+  }, [authContext.userType, router]);
+
   const [artworkTitle, setArtworkTitle] = useState('');
   const [artist, setArtist] = useState('');
   const [sceneDescription, setSceneDescription] = useState('');

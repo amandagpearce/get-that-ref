@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import Sheet from '@mui/joy/Sheet';
 import Typography from '@mui/joy/Typography';
 import FormControl from '@mui/joy/FormControl';
@@ -6,13 +6,48 @@ import FormLabel from '@mui/joy/FormLabel';
 import Input from '@mui/joy/Input';
 import Button from '@mui/joy/Button';
 
-const SignupForm = () => {
+const SignupForm = ({ onSubmit }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState(null);
+
+  const submitHandler = (e) => {
+    e.preventDefault();
+
+    if (!email || !password || !confirmPassword) {
+      setError('All fields are required');
+      return;
+    }
+
+    if (!email.includes('@') || !email.includes('.')) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    // Clear any previous error messages
+    setError(null);
+
+    onSubmit({
+      signup: {
+        email,
+        password,
+      },
+    });
+  };
+
   return (
     <Sheet
       sx={{
         width: 400,
         // mx: 'auto', // margin left & right
         my: 4, // margin top & bottom
+        p: 4,
         display: 'flex',
         flexDirection: 'column',
         gap: 2,
@@ -27,46 +62,53 @@ const SignupForm = () => {
         </Typography>
         <Typography level="body-sm">Sign up to continue.</Typography>
       </div>
-      <FormControl>
-        <FormLabel>Name</FormLabel>
-        <Input
-          // html input attribute
-          name="name"
-          type="text"
-          placeholder="Your Name Here"
-        />
-      </FormControl>
-      <FormControl>
-        <FormLabel>Email</FormLabel>
-        <Input
-          // html input attribute
-          name="email"
-          type="email"
-          placeholder="youremail@email.com"
-        />
-      </FormControl>
-      <FormControl>
-        <FormLabel>Password</FormLabel>
-        <Input
-          // html input attribute
-          name="password"
-          type="password"
-          placeholder="password"
-        />
-      </FormControl>
-      <FormControl>
-        <FormLabel>Password confirmation</FormLabel>
-        <Input
-          // html input attribute
-          name="password"
-          type="password"
-          placeholder="password"
-        />
-      </FormControl>
 
-      <Button sx={{ mt: 1 /* margin top */, background: '#0d3769' }}>
-        Sign Up
-      </Button>
+      <form onSubmit={submitHandler}>
+        <FormControl sx={{ my: 2 }}>
+          <FormLabel>Email</FormLabel>
+          <Input
+            // html input attribute
+            name="email"
+            type="email"
+            placeholder="youremail@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </FormControl>
+        <FormControl sx={{ my: 2 }}>
+          <FormLabel>Password</FormLabel>
+          <Input
+            // html input attribute
+            name="password"
+            type="password"
+            placeholder="password"
+            minLength="6"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </FormControl>
+        <FormControl sx={{ my: 2 }}>
+          <FormLabel>Password confirmation</FormLabel>
+          <Input
+            // html input attribute
+            name="password"
+            type="password"
+            placeholder="password"
+            minLength="6"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
+        </FormControl>
+
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+
+        <Button
+          type="submit"
+          sx={{ mt: 1 /* margin top */, background: '#0d3769' }}
+        >
+          Sign Up
+        </Button>
+      </form>
     </Sheet>
   );
 };
