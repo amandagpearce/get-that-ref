@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { styled, alpha } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -13,6 +13,8 @@ import ClickAwayListener from '@mui/material/ClickAwayListener';
 import { Container } from '@mui/material';
 import Link from 'next/link';
 import { useSearch } from '../../context/SearchContext';
+
+import AuthContext from '../../context/auth-context';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -48,6 +50,11 @@ export default function Header({ toggleModal }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const isMenuOpen = Boolean(anchorEl);
   const { handleSearchInputChange } = useSearch();
+  const authContext = useContext(AuthContext);
+
+  useEffect(() => {
+    console.log('authContext', authContext);
+  }, [authContext]);
 
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -60,6 +67,10 @@ export default function Header({ toggleModal }) {
   const handleLoginClick = () => {
     handleMenuClose();
     toggleModal();
+  };
+
+  const handleLogoutClick = () => {
+    console.log('LOGOUT');
   };
 
   const handleInputChange = (event) => {
@@ -84,7 +95,34 @@ export default function Header({ toggleModal }) {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleLoginClick}>Login</MenuItem>
+      {!authContext.isLoggedIn && (
+        <MenuItem onClick={handleLoginClick}>Login</MenuItem>
+      )}
+      {authContext.isLoggedIn && (
+        <MenuItem onClick={handleLogoutClick}>Logout</MenuItem>
+      )}
+
+      {authContext.isLoggedIn && authContext.userType === 'admin' && (
+        <MenuItem>
+          <Link
+            style={{ textDecoration: 'none', color: 'rgba(0, 0, 0, 0.87)' }}
+            href="/admin-account"
+          >
+            Refs to approve
+          </Link>
+        </MenuItem>
+      )}
+
+      {authContext.isLoggedIn && authContext.userType !== 'admin' && (
+        <MenuItem>
+          <Link
+            style={{ textDecoration: 'none', color: 'rgba(0, 0, 0, 0.87)' }}
+            href="/send-a-reference"
+          >
+            Send a reference
+          </Link>
+        </MenuItem>
+      )}
     </Menu>
   );
 
