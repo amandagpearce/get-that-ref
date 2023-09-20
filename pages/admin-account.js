@@ -14,6 +14,7 @@ import FormLabel from '@mui/joy/FormLabel';
 import Input from '@mui/joy/Input';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import AuthContext from '../context/auth-context';
 import { useRouter } from 'next/router';
@@ -46,10 +47,10 @@ const AdminAccount = () => {
   useEffect(() => {
     console.log('authContext', authContext);
     // Check userType on the client side
-    if (authContext.userType !== 'admin') {
-      router.push('/login'); // Redirect to home page if not admin
+    if (!authContext.isLoggedIn || authContext.userType !== 'admin') {
+      router.push('/'); // Redirect to home page if not admin
     }
-  }, [authContext.userType, router]);
+  }, [authContext, router]);
 
   const [artworkTitle, setArtworkTitle] = useState('');
   const [artist, setArtist] = useState('');
@@ -683,63 +684,86 @@ const AdminAccount = () => {
 
   return (
     <Grid container spacing={4} px={4}>
-      <Typography
-        variant="h4"
-        component="h3"
-        px={3}
-        sx={{ marginTop: '1em', fontFamily: 'Staatliches' }}
-      >
-        Refs to approve:
-      </Typography>
+      {!authContext.isLoggedIn ||
+        (authContext.userType !== 'admin' && (
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '100%',
+              width: '100%',
+              left: '0',
+              top: '0',
+              position: 'absolute',
+            }}
+          >
+            <CircularProgress style={{ width: '4rem', height: '4rem' }} />
+          </div>
+        ))}
 
-      {cards}
+      {authContext.isLoggedIn && authContext.userType === 'admin' && (
+        <>
+          <Typography
+            variant="h4"
+            component="h3"
+            px={3}
+            sx={{ marginTop: '1em', fontFamily: 'Staatliches' }}
+          >
+            Refs to approve:
+          </Typography>
 
-      {submissionStatus.success && (
-        <Typography
-          sx={{
-            color: 'green',
-            fontSize: '1.3em',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-            margin: '20px 0',
-            width: '100%',
-          }}
-        >
-          <CheckCircleIcon sx={{ marginX: '5px' }} /> {submissionStatus.message}
-        </Typography>
-      )}
+          {cards}
 
-      {/* Display the error message if there was an error */}
-      {!submissionStatus.success && submissionStatus.message && (
-        <Typography
-          sx={{
-            color: 'red',
-            fontSize: '1.3em',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-            margin: '20px 0',
-            width: '100%',
-          }}
-        >
-          <ErrorIcon sx={{ marginX: '5px' }} /> {submissionStatus.message}
-        </Typography>
-      )}
+          {submissionStatus.success && (
+            <Typography
+              sx={{
+                color: 'green',
+                fontSize: '1.3em',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+                margin: '20px 0',
+                width: '100%',
+              }}
+            >
+              <CheckCircleIcon sx={{ marginX: '5px' }} />{' '}
+              {submissionStatus.message}
+            </Typography>
+          )}
 
-      {!cards.length && (
-        <Typography
-          sx={{
-            fontSize: '1.3em',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            margin: '20px 0',
-            width: '100%',
-          }}
-        >
-          Nothing to approve yet.
-        </Typography>
+          {/* Display the error message if there was an error */}
+          {!submissionStatus.success && submissionStatus.message && (
+            <Typography
+              sx={{
+                color: 'red',
+                fontSize: '1.3em',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+                margin: '20px 0',
+                width: '100%',
+              }}
+            >
+              <ErrorIcon sx={{ marginX: '5px' }} /> {submissionStatus.message}
+            </Typography>
+          )}
+
+          {!cards.length && (
+            <Typography
+              sx={{
+                fontSize: '1.3em',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '20px 0',
+                width: '100%',
+              }}
+            >
+              Nothing to approve yet.
+            </Typography>
+          )}
+        </>
       )}
     </Grid>
   );
