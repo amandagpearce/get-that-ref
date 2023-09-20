@@ -152,11 +152,10 @@ const ImageMasonry = ({ itemData }) => {
               className={styles['image']}
             />
 
-            {selectedImage === item && ( // Check if the selectedImage matches the current item
-              <div className={styles['references-container']}>
-                {loading && <p>Loading references...</p>}
-                {error && <p>Error fetching references: {error.message}</p>}
-                {references && (
+            {selectedImage === item &&
+              !loading &&
+              references && ( // Check if the selectedImage matches the current item
+                <div className={styles['references-container']}>
                   <Grid item xs={12}>
                     {references.map((reference, key) => {
                       const artwork = reference.artworks[0]; // Get the first artwork from the artworks array
@@ -275,9 +274,8 @@ const ImageMasonry = ({ itemData }) => {
                       );
                     })}
                   </Grid>
-                )}
-              </div>
-            )}
+                </div>
+              )}
           </div>
         ))}
       </Masonry>
