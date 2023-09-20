@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import Head from 'next/head';
 import './_app.css';
 
@@ -12,10 +13,18 @@ import StarIcon from '@mui/icons-material/Star';
 
 import useAuth from './../hooks/auth-hook';
 import AuthContext from './../context/auth-context';
+import AppModal from '../components/ui/Modal';
+import AuthForms from '../components/layout/AuthForms';
 
 export default function App({ Component, pageProps }) {
   const { token, login, logout, userType } = useAuth();
   console.log('token', token);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen); // Toggle the modal state
+  };
 
   return (
     <>
@@ -27,17 +36,20 @@ export default function App({ Component, pageProps }) {
       </Head>
 
       <Marquee>
-        SEEN A VISUAL ARTS REFERENCE IN MOVIES OR SERIES?{' '}
+        YOU'VE SEEN A{' '}
+        <em style={{ color: '#ff9799', fontStyle: 'normal' }}>
+          VISUAL ARTS REFERENCE
+        </em>{' '}
+        IN A MOVIE OR SERIES?{' '}
         <Link
           style={{ color: '#fff', textDecoration: 'none' }}
           href="/send-a-reference"
         >
           <StarIcon sx={{ marginX: '5px' }} />
-          ADD
+          SUBMIT A
           <em style={{ color: '#ff69de', fontStyle: 'normal' }}>
-            &nbsp;NEW REFERENCE&nbsp;
+            &nbsp;NEW REFERENCE HERE
           </em>
-          FORM HERE
           <StarIcon sx={{ marginX: '5px' }} />
         </Link>
       </Marquee>
@@ -52,9 +64,13 @@ export default function App({ Component, pageProps }) {
         }}
       >
         <SearchProvider>
-          <Header />
+          <Header toggleModal={toggleModal} />
 
           <ApolloProvider client={client}>
+            <AppModal open={isModalOpen} handleClose={toggleModal}>
+              <AuthForms onSuccessfulSubmit={toggleModal} />
+            </AppModal>
+
             <Container maxWidth="xlg" style={{ background: '#efeffd' }}>
               <main style={{ padding: '30px 0' }}>
                 <Component {...pageProps} />

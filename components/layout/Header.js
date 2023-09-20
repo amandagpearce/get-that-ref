@@ -9,7 +9,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 import AccountCircle from '@mui/icons-material/AccountCircle';
-import MoreIcon from '@mui/icons-material/MoreVert';
+import ClickAwayListener from '@mui/material/ClickAwayListener';
 import { Container } from '@mui/material';
 import Link from 'next/link';
 import { useSearch } from '../../context/SearchContext';
@@ -44,30 +44,22 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-export default function Header() {
+export default function Header({ toggleModal }) {
   const [anchorEl, setAnchorEl] = useState(null);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
-
   const isMenuOpen = Boolean(anchorEl);
-  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
-
   const { handleSearchInputChange } = useSearch();
 
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleMobileMenuClose = () => {
-    setMobileMoreAnchorEl(null);
-  };
-
   const handleMenuClose = () => {
     setAnchorEl(null);
-    handleMobileMenuClose();
   };
 
-  const handleMobileMenuOpen = (event) => {
-    setMobileMoreAnchorEl(event.currentTarget);
+  const handleLoginClick = () => {
+    handleMenuClose();
+    toggleModal();
   };
 
   const handleInputChange = (event) => {
@@ -92,48 +84,7 @@ export default function Header() {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <Link href="/login">
-        <MenuItem onClick={handleMenuClose}>Login</MenuItem>
-      </Link>
-      <MenuItem onClick={handleMenuClose}>My Favourites</MenuItem>
-      <MenuItem onClick={handleMenuClose}>Sent References</MenuItem>
-    </Menu>
-  );
-
-  const mobileMenuId = 'primary-search-account-menu-mobile';
-  const renderMobileMenu = (
-    <Menu
-      anchorEl={mobileMoreAnchorEl}
-      anchorOrigin={{
-        vertical: 'top',
-        horizontal: 'right',
-      }}
-      id={mobileMenuId}
-      keepMounted
-      transformOrigin={{
-        vertical: 'top',
-        horizontal: 'right',
-      }}
-      open={isMobileMenuOpen}
-      onClose={handleMobileMenuClose}
-    >
-      <MenuItem onClick={handleProfileMenuOpen}>
-        <IconButton
-          aria-label="account of current user"
-          aria-controls="primary-search-account-menu"
-          aria-haspopup="true"
-          sx={{ fontSize: '28px', color: '#FFF' }} // Adjust size and color here
-          color="inherit"
-        >
-          <AccountCircle
-            sx={{
-              background: 'linear-gradient(45deg, #ffe622, #ff54fd, #2196F3)',
-              borderRadius: '100%',
-            }}
-          />
-        </IconButton>
-        <p>Profile</p>
-      </MenuItem>
+      <MenuItem onClick={handleLoginClick}>Login</MenuItem>
     </Menu>
   );
 
@@ -188,42 +139,30 @@ export default function Header() {
                 alignSelf: 'center',
               }}
             >
-              <IconButton
-                edge="end"
-                aria-label="account of current user"
-                aria-controls={menuId}
-                aria-haspopup="true"
-                onClick={handleProfileMenuOpen}
-                sx={{ color: '#fff', padding: '0' }}
-                color="inherit"
-              >
-                <AccountCircle
-                  sx={{
-                    background:
-                      'linear-gradient(45deg, #ffe622, #ff54fd, #2196F3)',
-                    borderRadius: '100%',
-                    width: '2.1em',
-                    height: 'auto',
-                  }}
-                />
-              </IconButton>
-            </Box>
-
-            <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
-              <IconButton
-                size="large"
-                aria-label="show more"
-                aria-controls={mobileMenuId}
-                aria-haspopup="true"
-                onClick={handleMobileMenuOpen}
-                color="inherit"
-              >
-                <MoreIcon />
-              </IconButton>
+              <ClickAwayListener onClickAway={handleMenuClose}>
+                <IconButton
+                  edge="end"
+                  aria-label="account of current user"
+                  aria-controls={menuId}
+                  aria-haspopup="true"
+                  onClick={handleProfileMenuOpen}
+                  sx={{ color: '#fff', padding: '0' }}
+                  color="inherit"
+                >
+                  <AccountCircle
+                    sx={{
+                      background:
+                        'linear-gradient(45deg, #ffe622, #ff54fd, #2196F3)',
+                      borderRadius: '100%',
+                      width: '2.1em',
+                      height: 'auto',
+                    }}
+                  />
+                </IconButton>
+              </ClickAwayListener>
             </Box>
           </Toolbar>
         </AppBar>
-        {renderMobileMenu}
         {renderMenu}
       </Container>
     </Box>

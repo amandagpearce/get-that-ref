@@ -38,8 +38,7 @@ const LoginForm = ({ onSubmit }) => {
   return (
     <Sheet
       sx={{
-        width: 400,
-        my: 4,
+        width: '100%',
         display: 'flex',
         flexDirection: 'column',
         gap: 2,
@@ -78,9 +77,17 @@ const LoginForm = ({ onSubmit }) => {
           />
         </FormControl>
 
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+
         <Button
           type="submit"
-          sx={{ mt: 1 /* margin top */, background: '#0d3769' }}
+          sx={{
+            mt: 1,
+            background: 'linear-gradient(45deg, #ffe622, #ff54fd, #2196F3);',
+            fontSize: '1.1rem',
+            opacity: '1',
+            color: 'white',
+          }}
         >
           Log in
         </Button>

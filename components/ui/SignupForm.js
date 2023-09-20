@@ -44,13 +44,10 @@ const SignupForm = ({ onSubmit }) => {
   return (
     <Sheet
       sx={{
-        width: 400,
-        // mx: 'auto', // margin left & right
-        my: 4, // margin top & bottom
+        width: '100%',
         p: 4,
         display: 'flex',
         flexDirection: 'column',
-        gap: 2,
         borderRadius: 'sm',
         boxShadow: 'md',
       }}
@@ -104,7 +101,13 @@ const SignupForm = ({ onSubmit }) => {
 
         <Button
           type="submit"
-          sx={{ mt: 1 /* margin top */, background: '#0d3769' }}
+          sx={{
+            mt: 1,
+            background: 'linear-gradient(45deg, #ffe622, #ff54fd, #2196F3);',
+            fontSize: '1.1rem',
+            opacity: '1',
+            color: 'white',
+          }}
         >
           Sign Up
         </Button>
