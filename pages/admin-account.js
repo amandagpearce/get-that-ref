@@ -680,8 +680,6 @@ const AdminAccount = () => {
     );
   });
 
-  const content = !!cards ? {} : <p>Nothing to approve.</p>;
-
   return (
     <Grid container spacing={4} px={4}>
       {!authContext.isLoggedIn ||
