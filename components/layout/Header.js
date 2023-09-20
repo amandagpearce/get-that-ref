@@ -12,8 +12,9 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 import { Container } from '@mui/material';
 import Link from 'next/link';
-import { useSearch } from '../../context/SearchContext';
 
+import { useSearch } from '../../context/SearchContext';
+import { useHttpClient } from '../../hooks/http-hook';
 import AuthContext from '../../context/auth-context';
 
 const Search = styled('div')(({ theme }) => ({
@@ -51,6 +52,7 @@ export default function Header({ toggleModal }) {
   const isMenuOpen = Boolean(anchorEl);
   const { handleSearchInputChange } = useSearch();
   const authContext = useContext(AuthContext);
+  const { isLoading, error, sendRequest, clearError } = useHttpClient();
 
   useEffect(() => {
     console.log('authContext', authContext);
@@ -69,8 +71,23 @@ export default function Header({ toggleModal }) {
     toggleModal();
   };
 
-  const handleLogoutClick = () => {
-    console.log('LOGOUT');
+  const handleLogoutClick = async () => {
+    try {
+      const res = await sendRequest(
+        'http://localhost:5000/logout',
+        'POST',
+        null,
+        {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authContext.token}`,
+        }
+      );
+
+      console.log('res', res);
+      authContext.logout();
+    } catch (err) {
+      console.log('error', err);
+    }
   };
 
   const handleInputChange = (event) => {
