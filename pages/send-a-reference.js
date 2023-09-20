@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import Sheet from '@mui/joy/Sheet';
 import Typography from '@mui/joy/Typography';
 import FormControl from '@mui/joy/FormControl';
@@ -12,6 +12,8 @@ import ErrorIcon from '@mui/icons-material/Error';
 import { styled } from '@mui/material/styles';
 import Button from '@mui/material/Button';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+
+import AuthContext from '../context/auth-context';
 
 const SendAReference = () => {
   const [artwork, setArtwork] = useState('');
@@ -28,6 +30,12 @@ const SendAReference = () => {
     success: false,
     message: '',
   });
+
+  const authContext = useContext(AuthContext);
+
+  useEffect(() => {
+    console.log('authContext', authContext);
+  }, [authContext]);
 
   const [validity, setValidity] = useState({
     title: false,
@@ -48,10 +56,6 @@ const SendAReference = () => {
     artist: false,
     sceneDescription: false,
   });
-
-  useEffect(() => {
-    // This will ensure the component is rendered on the client side.
-  }, []);
 
   const clearForm = () => {
     setArtwork('');
@@ -255,306 +259,359 @@ const SendAReference = () => {
   });
 
   return (
-    <Sheet
-      sx={{
-        width: '100%',
-        mx: 'auto',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 2,
-        borderRadius: 'sm',
-        boxShadow: 'md',
-      }}
-      variant="outlined"
-    >
-      <form onSubmit={handleSubmit}>
-        <Grid container spacing={2} p={4} sx={{ alignItems: 'flex-start' }}>
-          <Grid item xs={12}>
-            <Typography level="h4" component="h1">
-              <b>Welcome!</b>
-            </Typography>
-            <Typography level="body-sm" sx={{ fontSize: '1.2rem' }}>
-              Fill in the form below with the visual arts reference data:
-            </Typography>
-          </Grid>
-
-          <Grid item xs={12}>
-            <Grid container alignItems="center">
-              <Grid item sx={{ marginRight: '20px' }}>
-                <FormControl>
-                  <RadioGroup
-                    name="isMovie"
-                    value={isMovie ? 'movie' : 'series'}
-                    onChange={handleRadioChange}
-                    sx={{
-                      fontSize: '1.1rem',
-                      fontWeight: '500',
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <Radio value="movie" sx={{ marginRight: '10px' }} /> Movie
-                  </RadioGroup>
-                </FormControl>
-              </Grid>
-
-              <Grid item sx={{ marginRight: '20px' }}>
-                <FormControl>
-                  <RadioGroup
-                    name="isMovie"
-                    value={isMovie ? 'movie' : 'series'}
-                    onChange={handleRadioChange}
-                    sx={{
-                      fontSize: '1.1rem',
-                      fontWeight: '500',
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <Radio value="series" sx={{ marginRight: '10px' }} /> Series
-                  </RadioGroup>
-                </FormControl>
-              </Grid>
-            </Grid>
-          </Grid>
-
-          <Grid item xs={12} md={6} lg={4}>
-            <Grid container alignItems="center">
-              <Grid item xs={12}>
-                <FormControl>
-                  <FormLabel sx={{ fontSize: '1.1rem' }}>
-                    {isMovie ? 'Movie' : 'Series '} Title*
-                  </FormLabel>
-                  <Input
-                    name="title"
-                    type="text"
-                    value={title}
-                    onChange={(e) => {
-                      setTitle(e.target.value);
-                      handleInputChange('title', e.target.value);
-                    }}
-                    onBlur={() => handleBlur('title')}
-                    required
-                    sx={{
-                      borderColor:
-                        touched.title && !validity.title ? 'red' : '#cdd7e1',
-                    }}
-                  />
-                </FormControl>
-              </Grid>
-
-              <Grid item xs={12}>
-                <FormControl sx={{ marginTop: 2, marginBottom: 2 }}>
-                  <FormLabel sx={{ fontSize: '1.1rem' }}>
-                    {isMovie ? 'Movie' : 'Series '} Year*
-                  </FormLabel>
-                  <Input
-                    name="year"
-                    type="number"
-                    value={year}
-                    onChange={(e) => {
-                      setYear(e.target.value);
-                      handleInputChange('year', e.target.value);
-                    }}
-                    onBlur={() => handleBlur('year')}
-                    required
-                    sx={{
-                      borderColor:
-                        touched.year && !validity.year ? 'red' : '#cdd7e1',
-                    }}
-                  />
-                </FormControl>
-              </Grid>
-            </Grid>
-
-            {!isMovie && (
-              <>
-                <FormControl sx={{ marginBottom: 2 }}>
-                  <FormLabel sx={{ fontSize: '1.1rem' }}>Episode</FormLabel>
-                  <Input
-                    name="episode"
-                    type="text"
-                    value={episode}
-                    onChange={(e) => {
-                      setEpisode(e.target.value);
-                      handleInputChange('episode', e.target.value);
-                    }}
-                    onBlur={() => handleBlur('episode')}
-                    sx={{
-                      borderColor:
-                        touched.episode && !validity.episode
-                          ? 'red'
-                          : '#cdd7e1',
-                    }}
-                  />
-                </FormControl>
-                <FormControl sx={{ marginTop: 2, marginBottom: 2 }}>
-                  <FormLabel sx={{ fontSize: '1.1rem' }}>Season</FormLabel>
-                  <Input
-                    name="season"
-                    type="text"
-                    value={season}
-                    onChange={(e) => {
-                      setSeason(e.target.value);
-                      handleInputChange('season', e.target.value);
-                    }}
-                    onBlur={() => handleBlur('season')}
-                    sx={{
-                      borderColor:
-                        touched.season && !validity.season ? 'red' : '#cdd7e1',
-                    }}
-                  />
-                </FormControl>
-              </>
-            )}
-          </Grid>
-
-          <Grid item xs={12} md={6} lg={4}>
-            <FormControl sx={{ marginBottom: 2 }}>
-              <FormLabel sx={{ fontSize: '1.1rem' }}>
-                Artwork referenced*
-              </FormLabel>
-              <Input
-                name="artwork"
-                type="text"
-                value={artwork}
-                onChange={(e) => {
-                  setArtwork(e.target.value);
-                  handleInputChange('artwork', e.target.value);
-                }}
-                onBlur={() => handleBlur('artwork')}
-                required
-                sx={{
-                  borderColor:
-                    touched.artwork && !validity.artwork ? 'red' : '#cdd7e1',
-                }}
-              />
-            </FormControl>
-
-            <FormControl sx={{ marginTop: 2, marginBottom: 2 }}>
-              <FormLabel sx={{ fontSize: '1.1rem' }}>Artist*</FormLabel>
-              <Input
-                name="artist"
-                type="text"
-                value={artist}
-                onChange={(e) => {
-                  setArtist(e.target.value);
-                  handleInputChange('artist', e.target.value);
-                }}
-                onBlur={() => handleBlur('artist')}
-                required
-                sx={{
-                  borderColor:
-                    touched.artist && !validity.artist ? 'red' : '#cdd7e1',
-                }}
-              />
-            </FormControl>
-          </Grid>
-
-          <Grid item xs={12} md={6} lg={4}>
-            <FormControl sx={{ marginBottom: 2 }}>
-              <FormLabel sx={{ fontSize: '1.1rem' }}>
-                Scene description*
-              </FormLabel>
-              <Input
-                name="sceneDescription"
-                type="text"
-                value={sceneDescription}
-                onChange={(e) => {
-                  setSceneDescription(e.target.value);
-                  handleInputChange('sceneDescription', e.target.value);
-                }}
-                onBlur={() => handleBlur('sceneDescription')}
-                required
-                sx={{
-                  borderColor:
-                    touched.sceneDescription && !validity.sceneDescription
-                      ? 'red'
-                      : '#cdd7e1',
-                }}
-              />
-            </FormControl>
-
-            <FormControl sx={{ marginTop: 2, marginBottom: 2 }}>
-              <FormLabel sx={{ fontSize: '1.1rem' }}>
-                Scene screenshot/print/image
-              </FormLabel>
-
-              <Button
-                component="label"
-                variant="contained"
-                startIcon={<CloudUploadIcon />}
-                sx={{ backgroundColor: '#777cf6' }}
-              >
-                Upload file
-                <VisuallyHiddenInput
-                  name="file"
-                  type="file"
-                  accept=".png, .jpeg, .jpg"
-                  onChange={handleFileChange}
-                />
-              </Button>
-              {fileName && <span>Selected file: {fileName}</span>}
-              {!fileName && <span>No file selected.</span>}
-            </FormControl>
-          </Grid>
-
-          <Grid
-            item
-            xs={12}
-            sx={{ display: 'flex', justifyContent: 'flex-end' }}
+    <>
+      {authContext.isLoggedIn && (
+        <>
+          <Typography
+            px={3}
+            sx={{
+              margin: '0',
+              padding: '0',
+              fontFamily: 'Staatliches',
+              fontSize: '2.5rem',
+            }}
           >
-            {/* Display the success message if submission was successful */}
-            {submissionStatus.success && (
-              <Typography
-                sx={{
-                  color: 'green',
-                  fontSize: '1.3em',
-                  display: 'flex',
-                  alignItems: 'center',
-                  margin: '0 20px',
-                }}
+            Send a new reference
+          </Typography>
+          <Sheet
+            sx={{
+              width: '100%',
+              mx: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2,
+              borderRadius: 'sm',
+              boxShadow: 'md',
+            }}
+            variant="outlined"
+          >
+            <form onSubmit={handleSubmit}>
+              <Grid
+                container
+                spacing={2}
+                p={4}
+                sx={{ alignItems: 'flex-start' }}
               >
-                <CheckCircleIcon sx={{ marginX: '5px' }} />{' '}
-                {submissionStatus.message}
-              </Typography>
-            )}
+                <Grid item xs={12}>
+                  <Typography level="h4" component="h1">
+                    <b>Welcome!</b>
+                  </Typography>
+                  <Typography level="body-sm" sx={{ fontSize: '1.2rem' }}>
+                    Fill in the form below with the visual arts reference data:
+                  </Typography>
+                </Grid>
 
-            {/* Display the error message if there was an error */}
-            {!submissionStatus.success && submissionStatus.message && (
-              <Typography
-                sx={{
-                  color: 'red',
-                  fontSize: '1.3em',
-                  display: 'flex',
-                  alignItems: 'center',
-                  margin: '0 20px',
-                }}
-              >
-                <ErrorIcon sx={{ marginX: '5px' }} /> {submissionStatus.message}
-              </Typography>
-            )}
+                <Grid item xs={12}>
+                  <Grid container alignItems="center">
+                    <Grid item sx={{ marginRight: '20px' }}>
+                      <FormControl>
+                        <RadioGroup
+                          name="isMovie"
+                          value={isMovie ? 'movie' : 'series'}
+                          onChange={handleRadioChange}
+                          sx={{
+                            fontSize: '1.1rem',
+                            fontWeight: '500',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                          }}
+                        >
+                          <Radio value="movie" sx={{ marginRight: '10px' }} />{' '}
+                          Movie
+                        </RadioGroup>
+                      </FormControl>
+                    </Grid>
 
-            <Button
-              type="submit"
-              sx={{
-                mt: 1,
-                width: '120px',
-                background:
-                  'linear-gradient(45deg, #ffe622, #ff54fd, #2196F3);',
-                fontSize: '1.1rem',
-                opacity: '1',
-                filter: `grayscale(${isFormValid() ? 0 : 1})`, // Apply grayscale filter when disabled
-                color: isFormValid() ? 'white' : '#000!important', // Change color to black when disabled
-              }}
-              disabled={!isFormValid()}
-            >
-              Submit
-            </Button>
-          </Grid>
-        </Grid>
-      </form>
-    </Sheet>
+                    <Grid item sx={{ marginRight: '20px' }}>
+                      <FormControl>
+                        <RadioGroup
+                          name="isMovie"
+                          value={isMovie ? 'movie' : 'series'}
+                          onChange={handleRadioChange}
+                          sx={{
+                            fontSize: '1.1rem',
+                            fontWeight: '500',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                          }}
+                        >
+                          <Radio value="series" sx={{ marginRight: '10px' }} />{' '}
+                          Series
+                        </RadioGroup>
+                      </FormControl>
+                    </Grid>
+                  </Grid>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={4}>
+                  <Grid container alignItems="center">
+                    <Grid item xs={12}>
+                      <FormControl>
+                        <FormLabel sx={{ fontSize: '1.1rem' }}>
+                          {isMovie ? 'Movie' : 'Series '} Title*
+                        </FormLabel>
+                        <Input
+                          name="title"
+                          type="text"
+                          value={title}
+                          onChange={(e) => {
+                            setTitle(e.target.value);
+                            handleInputChange('title', e.target.value);
+                          }}
+                          onBlur={() => handleBlur('title')}
+                          required
+                          sx={{
+                            borderColor:
+                              touched.title && !validity.title
+                                ? 'red'
+                                : '#cdd7e1',
+                          }}
+                        />
+                      </FormControl>
+                    </Grid>
+
+                    <Grid item xs={12}>
+                      <FormControl sx={{ marginTop: 2, marginBottom: 2 }}>
+                        <FormLabel sx={{ fontSize: '1.1rem' }}>
+                          {isMovie ? 'Movie' : 'Series '} Year*
+                        </FormLabel>
+                        <Input
+                          name="year"
+                          type="number"
+                          value={year}
+                          onChange={(e) => {
+                            setYear(e.target.value);
+                            handleInputChange('year', e.target.value);
+                          }}
+                          onBlur={() => handleBlur('year')}
+                          required
+                          sx={{
+                            borderColor:
+                              touched.year && !validity.year
+                                ? 'red'
+                                : '#cdd7e1',
+                          }}
+                        />
+                      </FormControl>
+                    </Grid>
+                  </Grid>
+
+                  {!isMovie && (
+                    <>
+                      <FormControl sx={{ marginBottom: 2 }}>
+                        <FormLabel sx={{ fontSize: '1.1rem' }}>
+                          Episode
+                        </FormLabel>
+                        <Input
+                          name="episode"
+                          type="text"
+                          value={episode}
+                          onChange={(e) => {
+                            setEpisode(e.target.value);
+                            handleInputChange('episode', e.target.value);
+                          }}
+                          onBlur={() => handleBlur('episode')}
+                          sx={{
+                            borderColor:
+                              touched.episode && !validity.episode
+                                ? 'red'
+                                : '#cdd7e1',
+                          }}
+                        />
+                      </FormControl>
+                      <FormControl sx={{ marginTop: 2, marginBottom: 2 }}>
+                        <FormLabel sx={{ fontSize: '1.1rem' }}>
+                          Season
+                        </FormLabel>
+                        <Input
+                          name="season"
+                          type="text"
+                          value={season}
+                          onChange={(e) => {
+                            setSeason(e.target.value);
+                            handleInputChange('season', e.target.value);
+                          }}
+                          onBlur={() => handleBlur('season')}
+                          sx={{
+                            borderColor:
+                              touched.season && !validity.season
+                                ? 'red'
+                                : '#cdd7e1',
+                          }}
+                        />
+                      </FormControl>
+                    </>
+                  )}
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={4}>
+                  <FormControl sx={{ marginBottom: 2 }}>
+                    <FormLabel sx={{ fontSize: '1.1rem' }}>
+                      Artwork referenced*
+                    </FormLabel>
+                    <Input
+                      name="artwork"
+                      type="text"
+                      value={artwork}
+                      onChange={(e) => {
+                        setArtwork(e.target.value);
+                        handleInputChange('artwork', e.target.value);
+                      }}
+                      onBlur={() => handleBlur('artwork')}
+                      required
+                      sx={{
+                        borderColor:
+                          touched.artwork && !validity.artwork
+                            ? 'red'
+                            : '#cdd7e1',
+                      }}
+                    />
+                  </FormControl>
+
+                  <FormControl sx={{ marginTop: 2, marginBottom: 2 }}>
+                    <FormLabel sx={{ fontSize: '1.1rem' }}>Artist*</FormLabel>
+                    <Input
+                      name="artist"
+                      type="text"
+                      value={artist}
+                      onChange={(e) => {
+                        setArtist(e.target.value);
+                        handleInputChange('artist', e.target.value);
+                      }}
+                      onBlur={() => handleBlur('artist')}
+                      required
+                      sx={{
+                        borderColor:
+                          touched.artist && !validity.artist
+                            ? 'red'
+                            : '#cdd7e1',
+                      }}
+                    />
+                  </FormControl>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={4}>
+                  <FormControl sx={{ marginBottom: 2 }}>
+                    <FormLabel sx={{ fontSize: '1.1rem' }}>
+                      Scene description*
+                    </FormLabel>
+                    <Input
+                      name="sceneDescription"
+                      type="text"
+                      value={sceneDescription}
+                      onChange={(e) => {
+                        setSceneDescription(e.target.value);
+                        handleInputChange('sceneDescription', e.target.value);
+                      }}
+                      onBlur={() => handleBlur('sceneDescription')}
+                      required
+                      sx={{
+                        borderColor:
+                          touched.sceneDescription && !validity.sceneDescription
+                            ? 'red'
+                            : '#cdd7e1',
+                      }}
+                    />
+                  </FormControl>
+
+                  <FormControl sx={{ marginTop: 2, marginBottom: 2 }}>
+                    <FormLabel sx={{ fontSize: '1.1rem' }}>
+                      Scene screenshot/print/image
+                    </FormLabel>
+
+                    <Button
+                      component="label"
+                      variant="contained"
+                      startIcon={<CloudUploadIcon />}
+                      sx={{ backgroundColor: '#777cf6' }}
+                    >
+                      Upload file
+                      <VisuallyHiddenInput
+                        name="file"
+                        type="file"
+                        accept=".png, .jpeg, .jpg"
+                        onChange={handleFileChange}
+                      />
+                    </Button>
+                    {fileName && <span>Selected file: {fileName}</span>}
+                    {!fileName && <span>No file selected.</span>}
+                  </FormControl>
+                </Grid>
+
+                <Grid
+                  item
+                  xs={12}
+                  sx={{ display: 'flex', justifyContent: 'flex-end' }}
+                >
+                  {/* Display the success message if submission was successful */}
+                  {submissionStatus.success && (
+                    <Typography
+                      sx={{
+                        color: 'green',
+                        fontSize: '1.3em',
+                        display: 'flex',
+                        alignItems: 'center',
+                        margin: '0 20px',
+                      }}
+                    >
+                      <CheckCircleIcon sx={{ marginX: '5px' }} />{' '}
+                      {submissionStatus.message}
+                    </Typography>
+                  )}
+
+                  {/* Display the error message if there was an error */}
+                  {!submissionStatus.success && submissionStatus.message && (
+                    <Typography
+                      sx={{
+                        color: 'red',
+                        fontSize: '1.3em',
+                        display: 'flex',
+                        alignItems: 'center',
+                        margin: '0 20px',
+                      }}
+                    >
+                      <ErrorIcon sx={{ marginX: '5px' }} />{' '}
+                      {submissionStatus.message}
+                    </Typography>
+                  )}
+
+                  <Button
+                    type="submit"
+                    sx={{
+                      mt: 1,
+                      width: '120px',
+                      background:
+                        'linear-gradient(45deg, #ffe622, #ff54fd, #2196F3);',
+                      fontSize: '1.1rem',
+                      opacity: '1',
+                      filter: `grayscale(${isFormValid() ? 0 : 1})`, // Apply grayscale filter when disabled
+                      color: isFormValid() ? 'white' : '#000!important', // Change color to black when disabled
+                    }}
+                    disabled={!isFormValid()}
+                  >
+                    Submit
+                  </Button>
+                </Grid>
+              </Grid>
+            </form>
+          </Sheet>
+        </>
+      )}
+
+      {!authContext.isLoggedIn && (
+        <Typography
+          px={3}
+          sx={{
+            margin: '0',
+            padding: '0',
+            fontFamily: 'Staatliches',
+            fontSize: '2.5rem',
+          }}
+        >
+          Please login before sending a new reference!
+        </Typography>
+      )}
+    </>
   );
 };
 
