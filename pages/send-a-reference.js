@@ -14,6 +14,13 @@ import Button from '@mui/material/Button';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 import AuthContext from '../context/auth-context';
+import { useLazyQuery } from '@apollo/client';
+import {
+  SEARCH_SERIES_TITLES_QUERY,
+  SEARCH_MOVIE_TITLES_QUERY,
+} from '../util/graphql_queries';
+import Autocomplete from '@mui/material/Autocomplete';
+import TextField from '@mui/material/TextField';
 
 const SendAReference = () => {
   const [artwork, setArtwork] = useState('');
@@ -258,6 +265,20 @@ const SendAReference = () => {
     width: 1,
   });
 
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTitles, { loading, data }] = useLazyQuery(
+    isMovie ? SEARCH_MOVIE_TITLES_QUERY : SEARCH_SERIES_TITLES_QUERY
+  );
+
+  const handleTitleInputChange = (value) => {
+    setSearchTerm(value);
+
+    // Trigger the GraphQL query when the user types at least 3 characters
+    if (value.length >= 3) {
+      searchTitles({ variables: { searchTerm: value } });
+    }
+  };
+
   return (
     <>
       {authContext.isLoggedIn && (
@@ -279,7 +300,6 @@ const SendAReference = () => {
               mx: 'auto',
               display: 'flex',
               flexDirection: 'column',
-              gap: 2,
               borderRadius: 'sm',
               boxShadow: 'md',
             }}
@@ -288,7 +308,7 @@ const SendAReference = () => {
             <form onSubmit={handleSubmit}>
               <Grid
                 container
-                spacing={2}
+                spacing={4}
                 p={4}
                 sx={{ alignItems: 'flex-start' }}
               >
@@ -346,31 +366,49 @@ const SendAReference = () => {
                 <Grid item xs={12} md={6} lg={4}>
                   <Grid container alignItems="center">
                     <Grid item xs={12}>
-                      <FormControl>
+                      <FormControl sx={{ marginBottom: 2 }}>
                         <FormLabel sx={{ fontSize: '1.1rem' }}>
                           {isMovie ? 'Movie' : 'Series '} Title*
                         </FormLabel>
-                        <Input
-                          name="title"
-                          type="text"
-                          value={title}
-                          onChange={(e) => {
-                            setTitle(e.target.value);
-                            handleInputChange('title', e.target.value);
+
+                        <Autocomplete
+                          options={
+                            isMovie && data
+                              ? data?.searchMoviesQuery
+                              : data?.searchSeriesQuery || []
+                          }
+                          getOptionLabel={(option) =>
+                            `${option.title} (${option.year})`
+                          }
+                          loading={loading}
+                          onChange={(event, newValue) => {
+                            if (newValue) {
+                              setTitle(newValue.title);
+                              setYear(newValue.year);
+                              setSearchTerm('');
+                            } else {
+                              // Handle the case when no option is selected (optional)
+                              setTitle('');
+                              setYear('');
+                              setSearchTerm('');
+                            }
                           }}
-                          onBlur={() => handleBlur('title')}
-                          required
-                          sx={{
-                            borderColor:
-                              touched.title && !validity.title
-                                ? 'red'
-                                : '#cdd7e1',
-                          }}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              variant="outlined"
+                              fullWidth
+                              value={searchTerm}
+                              onChange={(e) =>
+                                handleTitleInputChange(e.target.value)
+                              }
+                            />
+                          )}
                         />
                       </FormControl>
                     </Grid>
 
-                    <Grid item xs={12}>
+                    {/* <Grid item xs={12}>
                       <FormControl sx={{ marginTop: 2, marginBottom: 2 }}>
                         <FormLabel sx={{ fontSize: '1.1rem' }}>
                           {isMovie ? 'Movie' : 'Series '} Year*
@@ -386,6 +424,8 @@ const SendAReference = () => {
                           onBlur={() => handleBlur('year')}
                           required
                           sx={{
+                            borderRadius: '4px',
+                            padding: '14px 0',
                             borderColor:
                               touched.year && !validity.year
                                 ? 'red'
@@ -393,7 +433,7 @@ const SendAReference = () => {
                           }}
                         />
                       </FormControl>
-                    </Grid>
+                    </Grid> */}
                   </Grid>
 
                   {!isMovie && (
@@ -412,10 +452,12 @@ const SendAReference = () => {
                           }}
                           onBlur={() => handleBlur('episode')}
                           sx={{
+                            borderRadius: '4px',
+                            padding: '15px',
                             borderColor:
                               touched.episode && !validity.episode
                                 ? 'red'
-                                : '#cdd7e1',
+                                : '#c2c2c2',
                           }}
                         />
                       </FormControl>
@@ -433,10 +475,12 @@ const SendAReference = () => {
                           }}
                           onBlur={() => handleBlur('season')}
                           sx={{
+                            borderRadius: '4px',
+                            padding: '15px',
                             borderColor:
                               touched.season && !validity.season
                                 ? 'red'
-                                : '#cdd7e1',
+                                : '#c2c2c2',
                           }}
                         />
                       </FormControl>
@@ -460,10 +504,12 @@ const SendAReference = () => {
                       onBlur={() => handleBlur('artwork')}
                       required
                       sx={{
+                        borderRadius: '4px',
+                        padding: '15px',
                         borderColor:
                           touched.artwork && !validity.artwork
                             ? 'red'
-                            : '#cdd7e1',
+                            : '#c2c2c2',
                       }}
                     />
                   </FormControl>
@@ -481,10 +527,12 @@ const SendAReference = () => {
                       onBlur={() => handleBlur('artist')}
                       required
                       sx={{
+                        borderRadius: '4px',
+                        padding: '15px',
                         borderColor:
                           touched.artist && !validity.artist
                             ? 'red'
-                            : '#cdd7e1',
+                            : '#c2c2c2',
                       }}
                     />
                   </FormControl>
@@ -506,10 +554,12 @@ const SendAReference = () => {
                       onBlur={() => handleBlur('sceneDescription')}
                       required
                       sx={{
+                        borderRadius: '4px',
+                        padding: '15px',
                         borderColor:
                           touched.sceneDescription && !validity.sceneDescription
                             ? 'red'
-                            : '#cdd7e1',
+                            : '#c2c2c2',
                       }}
                     />
                   </FormControl>
