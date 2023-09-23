@@ -50,7 +50,10 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-export default function Header({ toggleModal }) {
+export default function Header({
+  toggleLoginModal,
+  togglePasswordChangeModal,
+}) {
   const [anchorEl, setAnchorEl] = useState(null);
   const isMenuOpen = Boolean(anchorEl);
   const { handleSearchInputChange } = useSearch();
@@ -73,10 +76,10 @@ export default function Header({ toggleModal }) {
 
   const handleLoginClick = () => {
     handleMenuClose();
-    toggleModal();
+    toggleLoginModal();
   };
 
-  const handleLogoutClick = async () => {
+  const logoutHandler = async () => {
     try {
       const res = await sendRequest(
         'http://localhost:5000/logout',
@@ -93,6 +96,10 @@ export default function Header({ toggleModal }) {
     } catch (err) {
       console.log('error', err);
     }
+  };
+
+  const changePasswordHandler = () => {
+    togglePasswordChangeModal();
   };
 
   const handleInputChange = (event) => {
@@ -135,7 +142,11 @@ export default function Header({ toggleModal }) {
         <MenuItem onClick={handleLoginClick}>Login</MenuItem>
       )}
       {authContext.isLoggedIn && (
-        <MenuItem onClick={handleLogoutClick}>Logout</MenuItem>
+        <MenuItem onClick={changePasswordHandler}>Change Password</MenuItem>
+      )}
+
+      {authContext.isLoggedIn && (
+        <MenuItem onClick={logoutHandler}>Logout</MenuItem>
       )}
 
       {authContext.isLoggedIn && authContext.userType === 'admin' && (

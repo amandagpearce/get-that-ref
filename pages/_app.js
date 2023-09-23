@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import Head from 'next/head';
 import { ApolloProvider } from '@apollo/client';
 
@@ -8,6 +8,7 @@ import useAuth from './../hooks/auth-hook';
 import AuthContext from './../context/auth-context';
 import AppModal from '../components/ui/Modal';
 import AuthForms from '../components/layout/AuthForms';
+import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { SearchProvider } from '../context/SearchContext';
 import { client } from '../apollo';
 import './_app.css';
@@ -15,15 +16,55 @@ import './_app.css';
 import { Container } from '@mui/material';
 import Link from 'next/link';
 import StarIcon from '@mui/icons-material/Star';
+import ChangePasswordForm from '../components/ui/forms/ChangePasswordForm';
+import { useHttpClient } from '../hooks/http-hook';
 
 export default function App({ Component, pageProps }) {
   const { token, login, logout, userType } = useAuth();
+  const [requestSuccessful, setRequestSuccessful] = useState(null);
+  const authContext = useContext(AuthContext);
+  const { isLoading, error, sendRequest, clearError } = useHttpClient();
   console.log('token', token);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
-  const toggleModal = () => {
-    setIsModalOpen(!isModalOpen); // Toggle the modal state
+  const toggleLoginModal = () => {
+    setIsLoginModalOpen(!isLoginModalOpen);
+  };
+
+  const togglePasswordChangeModal = () => {
+    setIsPasswordModalOpen(!isPasswordModalOpen);
+  };
+
+  const requestSuccessHandler = () => {
+    setRequestSuccessful(true);
+
+    setTimeout(() => {
+      setRequestSuccessful(null);
+      togglePasswordChangeModal();
+    }, 1000);
+  };
+
+  const submitPasswordChange = async (data) => {
+    console.log('data', data);
+    try {
+      const res = await sendRequest(
+        'http://localhost:5000/change-password',
+        'PUT',
+        JSON.stringify(data),
+        {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        }
+      );
+
+      console.log('res', res);
+      requestSuccessHandler();
+      // authContext.logout();
+    } catch (err) {
+      console.error('Error changing password:', err);
+    }
   };
 
   return (
@@ -64,11 +105,26 @@ export default function App({ Component, pageProps }) {
         }}
       >
         <SearchProvider>
-          <Header toggleModal={toggleModal} />
+          <Header
+            toggleLoginModal={toggleLoginModal}
+            togglePasswordChangeModal={togglePasswordChangeModal}
+          />
 
           <ApolloProvider client={client}>
-            <AppModal open={isModalOpen} handleClose={toggleModal}>
-              <AuthForms onSuccessfulSubmit={toggleModal} />
+            <AppModal open={isLoginModalOpen} handleClose={toggleLoginModal}>
+              <AuthForms onSuccessfulSubmit={toggleLoginModal} />
+            </AppModal>
+
+            <AppModal
+              open={isPasswordModalOpen}
+              handleClose={togglePasswordChangeModal}
+            >
+              <ChangePasswordForm
+                submitPasswordChange={(data) => submitPasswordChange(data)}
+              />
+              {isLoading && <LoadingSpinner />}
+
+              {!isLoading && requestSuccessful && <LoadingSpinner />}
             </AppModal>
 
             <Container maxWidth="xlg" style={{ background: '#efeffd' }}>

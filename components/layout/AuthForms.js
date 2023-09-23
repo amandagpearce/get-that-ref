@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 
-import LoginForm from '../ui/LoginForm';
-import SignupForm from '../ui/SignupForm';
+import LoginForm from '../ui/forms/LoginForm';
+import SignupForm from '../ui/forms/SignupForm';
 import { useHttpClient } from '../../hooks/http-hook';
 import AuthContext from '../../context/auth-context';
 import LoadingSpinner from '../ui/LoadingSpinner';
@@ -146,25 +146,7 @@ const AuthForms = ({ onSuccessfulSubmit }) => {
 
       {isLoading && <LoadingSpinner />}
 
-      {!isLoading && requestSuccessful && (
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100%',
-            width: '100%',
-            left: '0',
-            top: '0',
-            position: 'absolute',
-            background: 'rgba(0,0,0,0.3)',
-          }}
-        >
-          <CheckCircleOutlineRoundedIcon
-            style={{ width: '5rem', height: '5rem', color: '#1976d2' }}
-          />
-        </div>
-      )}
+      {!isLoading && requestSuccessful && <LoadingSpinner />}
     </Grid>
   );
 };
