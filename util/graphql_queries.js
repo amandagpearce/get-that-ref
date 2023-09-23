@@ -111,3 +111,25 @@ mutation {
   }
 }
 `;
+
+/* admin account query to retrieve refs */
+export const GET_REFERENCES_TO_APPROVE = gql`
+  query {
+    references {
+      id
+      productionType
+      productionTitle
+      productionYear
+      season
+      episode
+      artist
+      artworkTitle
+      artworkDescription
+      artworkYear
+      size
+      currentLocation
+      sceneDescription
+      sceneImgUrl
+    }
+  }
+`;

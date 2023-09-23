@@ -1,5 +1,12 @@
 import React, { useEffect } from 'react';
 import { useState, useContext } from 'react';
+import { useRouter } from 'next/router';
+import { useQuery, gql } from '@apollo/client';
+
+import AuthContext from '../context/auth-context';
+import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { GET_REFERENCES_TO_APPROVE } from '../util/graphql_queries';
+
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
@@ -7,51 +14,14 @@ import CardMedia from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { Grid } from '@mui/material';
-import { useQuery, gql } from '@apollo/client';
 import Sheet from '@mui/joy/Sheet';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import Input from '@mui/joy/Input';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
-import CircularProgress from '@mui/material/CircularProgress';
-
-import AuthContext from '../context/auth-context';
-import { useRouter } from 'next/router';
-
-const GET_REFERENCES_TO_APPROVE = gql`
-  query {
-    references {
-      id
-      productionType
-      productionTitle
-      productionYear
-      season
-      episode
-      artist
-      artworkTitle
-      artworkDescription
-      artworkYear
-      size
-      currentLocation
-      sceneDescription
-      sceneImgUrl
-    }
-  }
-`;
 
 const AdminAccount = () => {
-  const authContext = useContext(AuthContext);
-  const router = useRouter();
-
-  useEffect(() => {
-    console.log('authContext', authContext);
-    // Check userType on the client side
-    if (!authContext.isLoggedIn || authContext.userType !== 'admin') {
-      router.push('/'); // Redirect to home page if not admin
-    }
-  }, [authContext, router]);
-
   const [artworkTitle, setArtworkTitle] = useState('');
   const [artist, setArtist] = useState('');
   const [sceneDescription, setSceneDescription] = useState('');
@@ -69,6 +39,15 @@ const AdminAccount = () => {
     success: false,
     message: '',
   });
+  const authContext = useContext(AuthContext);
+  const router = useRouter();
+
+  useEffect(() => {
+    // console.log('authContext', authContext);
+    if (!authContext.isLoggedIn || authContext.userType !== 'admin') {
+      router.push('/');
+    }
+  }, [authContext, router]);
 
   const { loading, error, data, refetch } = useQuery(
     GET_REFERENCES_TO_APPROVE,
@@ -683,22 +662,7 @@ const AdminAccount = () => {
   return (
     <Grid container spacing={4} px={4}>
       {!authContext.isLoggedIn ||
-        (authContext.userType !== 'admin' && (
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              height: '100%',
-              width: '100%',
-              left: '0',
-              top: '0',
-              position: 'absolute',
-            }}
-          >
-            <CircularProgress style={{ width: '4rem', height: '4rem' }} />
-          </div>
-        ))}
+        (authContext.userType !== 'admin' && <LoadingSpinner />)}
 
       {authContext.isLoggedIn && authContext.userType === 'admin' && (
         <>
@@ -730,7 +694,6 @@ const AdminAccount = () => {
             </Typography>
           )}
 
-          {/* Display the error message if there was an error */}
           {!submissionStatus.success && submissionStatus.message && (
             <Typography
               sx={{
