@@ -1,6 +1,5 @@
 import React, { useContext, useState } from 'react';
 import { Button, Grid } from '@mui/material';
-import CircularProgress from '@mui/material/CircularProgress';
 import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
 
 import LoginForm from '../ui/LoginForm';
@@ -9,7 +8,7 @@ import SignupForm from '../ui/SignupForm';
 import { useHttpClient } from '../../hooks/http-hook';
 import AuthContext from '../../context/auth-context';
 
-import { useRouter } from 'next/router';
+import LoadingSpinner from '../ui/LoadingSpinner';
 
 const AuthForms = ({ onSuccessfulSubmit }) => {
   const [isLogin, setIsLogin] = useState(true);
@@ -151,23 +150,7 @@ const AuthForms = ({ onSuccessfulSubmit }) => {
         </Button>
       </Grid>
 
-      {isLoading && (
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100%',
-            width: '100%',
-            left: '0',
-            top: '0',
-            position: 'absolute',
-            background: 'rgba(0,0,0,0.3)',
-          }}
-        >
-          <CircularProgress style={{ width: '4rem', height: '4rem' }} />
-        </div>
-      )}
+      {isLoading && <LoadingSpinner />}
 
       {!isLoading && requestSuccessful && (
         <div
