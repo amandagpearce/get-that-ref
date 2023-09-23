@@ -26,7 +26,6 @@ const AuthForms = ({ onSuccessfulSubmit }) => {
   };
 
   const authSubmitHandler = async (data) => {
-    console.log('data', data);
     let endpoint, requestData;
 
     if (data.login) {
@@ -43,7 +42,6 @@ const AuthForms = ({ onSuccessfulSubmit }) => {
         username: data.signup.email,
         password: data.signup.password,
       });
-      console.log('requestData', requestData);
     }
 
     try {
@@ -54,10 +52,7 @@ const AuthForms = ({ onSuccessfulSubmit }) => {
         { 'Content-Type': 'application/json' } // without this the backend does not know what type of data they are receiving
       );
 
-      console.log('responseData', responseData);
-
       if (responseData.userType) {
-        console.log('userType', responseData.userType);
         authContext.login(responseData.access_token, responseData.userType);
       } else {
         authContext.login(responseData.access_token);
