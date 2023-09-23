@@ -81,3 +81,33 @@ export const GET_SERIES_AND_MOVIES = gql`
     }
   }
 `;
+
+/* Send a reference form query to send full reference with or without file */
+export const generateSendReferenceQuery = (
+  artist,
+  artwork,
+  year,
+  isMovie,
+  title,
+  season,
+  episode,
+  sceneDescription,
+  s3ImageUrl
+) => `
+mutation {
+  createReference(
+    artist: "${artist}",
+    artworkTitle: "${artwork}",
+    productionYear: ${parseInt(year, 10)},
+    productionType: "${isMovie ? 'movie' : 'series'}",
+    productionTitle: "${title}",
+    ${!!season ? `season: ${parseInt(season, 10)},` : ''}
+    ${!!episode ? `episode: ${parseInt(episode, 10)},` : ''}
+    sceneDescription: "${sceneDescription}",
+    ${!!s3ImageUrl ? `sceneImgUrl: "${s3ImageUrl}",` : ''}
+  ) {
+    success
+    message
+  }
+}
+`;

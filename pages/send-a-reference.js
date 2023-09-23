@@ -1,4 +1,17 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
+import { useLazyQuery } from '@apollo/client';
+
+import AuthContext from '../context/auth-context';
+import FileInput from '../components/ui/forms/FileInput';
+import {
+  SEARCH_SERIES_TITLES_QUERY,
+  SEARCH_MOVIE_TITLES_QUERY,
+  generateSendReferenceQuery,
+} from '../util/graphql_queries';
+
+import Button from '@mui/material/Button';
+import Autocomplete from '@mui/material/Autocomplete';
+import TextField from '@mui/material/TextField';
 import Sheet from '@mui/joy/Sheet';
 import Typography from '@mui/joy/Typography';
 import FormControl from '@mui/joy/FormControl';
@@ -9,20 +22,9 @@ import RadioGroup from '@mui/joy/RadioGroup';
 import Grid from '@mui/material/Grid';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
-import { styled } from '@mui/material/styles';
-import Button from '@mui/material/Button';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-
-import AuthContext from '../context/auth-context';
-import { useLazyQuery } from '@apollo/client';
-import {
-  SEARCH_SERIES_TITLES_QUERY,
-  SEARCH_MOVIE_TITLES_QUERY,
-} from '../util/graphql_queries';
-import Autocomplete from '@mui/material/Autocomplete';
-import TextField from '@mui/material/TextField';
 
 const SendAReference = () => {
+  const authContext = useContext(AuthContext);
   const [artwork, setArtwork] = useState('');
   const [artist, setArtist] = useState('');
   const [sceneDescription, setSceneDescription] = useState('');
@@ -32,18 +34,13 @@ const SendAReference = () => {
   const [episode, setEpisode] = useState();
   const [season, setSeason] = useState();
   const [file, setFile] = useState();
-  const [fileName, setFileName] = useState();
+  const [searchTerm, setSearchTerm] = useState('');
+  const autocompleteRef = useRef(null);
   const [submissionStatus, setSubmissionStatus] = useState({
     success: false,
     message: '',
   });
-
-  const authContext = useContext(AuthContext);
-
-  useEffect(() => {
-    console.log('authContext', authContext);
-  }, [authContext]);
-
+  const [shouldClearFileName, setShouldClearFileName] = useState(false);
   const [validity, setValidity] = useState({
     title: false,
     year: false,
@@ -53,7 +50,6 @@ const SendAReference = () => {
     artist: false,
     sceneDescription: false,
   });
-
   const [touched, setTouched] = useState({
     title: false,
     year: false,
@@ -73,134 +69,142 @@ const SendAReference = () => {
     setEpisode('');
     setSeason('');
     setFile(null);
-    setFileName('');
+    setShouldClearFileName(true);
+    setSearchTerm('');
+    setValidity({
+      title: false,
+      year: false,
+      episode: true,
+      season: true,
+      artwork: false,
+      artist: false,
+      sceneDescription: false,
+    });
+
+    if (autocompleteRef.current) {
+      autocompleteRef.current.querySelector('button').click();
+      autocompleteRef.current.querySelector('input').blur();
+    }
+  };
+
+  const clearSubmissionStatus = (resetShouldClearFilename = false) => {
+    setTimeout(() => {
+      setSubmissionStatus({
+        success: false,
+        message: '',
+      });
+
+      if (resetShouldClearFilename) {
+        setShouldClearFileName(false);
+      }
+    }, 3000);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const submitForm = async (s3ImageUrl = null) => {
+      // Construct the GraphQL request payload
+      const SEND_REFERENCE_QUERY = generateSendReferenceQuery(
+        artist,
+        artwork,
+        year,
+        isMovie,
+        title,
+        season,
+        episode,
+        sceneDescription,
+        s3ImageUrl
+      );
+
+      const requestBody = {
+        query: SEND_REFERENCE_QUERY,
+        variables: {
+          productionType: isMovie ? 'movie' : 'series',
+          productionTitle: title,
+          productionYear: parseInt(year, 10),
+          artist,
+          artworkTitle: artwork,
+          sceneDescription,
+          season,
+          episode,
+          ...(s3ImageUrl && { sceneImageUrl: s3ImageUrl }),
+        },
+      };
+
+      const graphqlResponse = await fetch('http://127.0.0.1:4000/graphql', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      // Handle the response from the server (unchanged)
+      const result = await graphqlResponse.json();
+
+      console.log('result.data', result.data);
+      if (result.data.createReference.success) {
+        setSubmissionStatus({
+          success: true,
+          message: 'Reference sent successfully!',
+        });
+
+        clearForm();
+        clearSubmissionStatus(true);
+      } else {
+        setSubmissionStatus({
+          success: false,
+          message: 'Something went wrong.',
+        });
+
+        clearSubmissionStatus();
+      }
+    };
+
     if (isFormValid()) {
       try {
         if (file) {
           const formData = new FormData();
-          formData.append('file', file); // Append the Blob object
-          formData.append('mimeType', file.type); // Append the MIME type
+          formData.append('file', file);
+          formData.append('mimeType', file.type);
 
-          // Make a POST request to the /api/uploadToS3 route
           const response = await fetch('/api/s3Upload', {
             method: 'POST',
             body: formData,
           });
 
           if (response.ok) {
-            // Parse the response to get the S3 URL
             const { s3ImageUrl } = await response.json();
-            console.log('s3ImageUrl', s3ImageUrl);
+            submitForm(s3ImageUrl);
 
-            // Define your GraphQL query string here (unchanged)
-            const graphqlQuery = `
-            mutation {
-              createReference(
-                artist: "${artist}",
-                artworkTitle: "${artwork}",
-                productionYear: ${parseInt(year, 10)},
-                productionType: "${isMovie ? 'movie' : 'series'}",
-                productionTitle: "${title}",
-                ${!!season ? `season: ${parseInt(season, 10)},` : ''}
-                ${!!episode ? `episode: ${parseInt(episode, 10)},` : ''}
-                sceneDescription: "${sceneDescription}",
-                sceneImgUrl: "${s3ImageUrl}"
-              ) {
-                success
-                message
-              }
-            }
-          `;
-
-            // Construct the GraphQL request payload (unchanged)
-            const requestBody = {
-              query: graphqlQuery,
-              variables: {
-                productionType: isMovie ? 'movie' : 'series',
-                productionTitle: title,
-                productionYear: parseInt(year, 10),
-                artist,
-                artworkTitle: artwork,
-                sceneDescription,
-                season,
-                episode,
-                sceneImageUrl: s3ImageUrl, // Include the S3 URL in the request
-              },
-            };
-
-            // Send the GraphQL request to your server (unchanged)
-            const graphqlResponse = await fetch(
-              'http://127.0.0.1:4000/graphql',
-              {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(requestBody),
-              }
-            );
-
-            // Handle the response from the server (unchanged)
-            const result = await graphqlResponse.json();
-
-            console.log('result.data', result.data);
-            if (result.data.createReference.success) {
-              setSubmissionStatus({
-                success: true,
-                message: 'Reference sent successfully!',
-              });
-
-              // reset
-              setTimeout(() => {
-                setSubmissionStatus({
-                  success: false,
-                  message: '',
-                });
-              }, 3000);
-
-              clearForm();
-            } else {
-              setSubmissionStatus({
-                success: false,
-                message: 'Something went wrong.',
-              });
-
-              setTimeout(() => {
-                setSubmissionStatus({
-                  success: false,
-                  message: '',
-                });
-              }, 3000);
-            }
+            // console.log('s3ImageUrl', s3ImageUrl);
           } else {
-            console.error('Error uploading to S3:', response.status);
             setSubmissionStatus({
               success: false,
               message: 'Something went wrong with the file upload.',
             });
 
-            setTimeout(() => {
-              setSubmissionStatus({
-                success: false,
-                message: '',
-              });
-            }, 3000);
+            clearSubmissionStatus();
           }
+        } else {
+          submitForm();
         }
       } catch (error) {
         // Handle any errors here
         console.error(error);
+
+        setSubmissionStatus({
+          success: false,
+          message: 'Something went wrong.',
+        });
+
+        clearSubmissionStatus();
       }
     }
   };
 
   const handleRadioChange = (event) => {
-    console.log(event.target.value === 'movie');
     setIsMovie(event.target.value === 'movie');
   };
 
@@ -227,48 +231,22 @@ const SendAReference = () => {
     }
   };
 
-  const isFormValid = () => {
-    return Object.values(validity).every((fieldValid) => fieldValid);
-  };
+  useEffect(() => {}, [authContext]);
 
-  // will trigger whenever the file changes
   useEffect(() => {
     if (!file) {
       return;
     }
   }, [file]);
 
-  const handleFileChange = (event) => {
-    const selectedFile = event.target.files[0];
+  useEffect(() => {
+    handleInputChange('title', title);
+    handleInputChange('year', year);
+  }, [title, year]);
 
-    if (selectedFile) {
-      setFileName(selectedFile.name);
-
-      const blob = new Blob([selectedFile], { type: selectedFile.type });
-      console.log('blob.type', blob.type);
-      setFile(blob);
-    } else {
-      setSceneImgUrl(null);
-      setFile(null);
-    }
+  const onFileChangeHandler = (file) => {
+    setFile(file);
   };
-
-  const VisuallyHiddenInput = styled('input')({
-    clip: 'rect(0 0 0 0)',
-    clipPath: 'inset(50%)',
-    height: 1,
-    overflow: 'hidden',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    whiteSpace: 'nowrap',
-    width: 1,
-  });
-
-  const [searchTerm, setSearchTerm] = useState('');
-  const [searchTitles, { loading, data }] = useLazyQuery(
-    isMovie ? SEARCH_MOVIE_TITLES_QUERY : SEARCH_SERIES_TITLES_QUERY
-  );
 
   const handleTitleInputChange = (value) => {
     setSearchTerm(value);
@@ -278,6 +256,14 @@ const SendAReference = () => {
       searchTitles({ variables: { searchTerm: value } });
     }
   };
+
+  const isFormValid = () => {
+    return Object.values(validity).every((fieldValid) => fieldValid);
+  };
+
+  const [searchTitles, { loading, data }] = useLazyQuery(
+    isMovie ? SEARCH_MOVIE_TITLES_QUERY : SEARCH_SERIES_TITLES_QUERY
+  );
 
   return (
     <>
@@ -372,6 +358,7 @@ const SendAReference = () => {
                         </FormLabel>
 
                         <Autocomplete
+                          ref={autocompleteRef}
                           options={
                             isMovie && data
                               ? data?.searchMoviesQuery
@@ -387,7 +374,6 @@ const SendAReference = () => {
                               setYear(newValue.year);
                               setSearchTerm('');
                             } else {
-                              // Handle the case when no option is selected (optional)
                               setTitle('');
                               setYear('');
                               setSearchTerm('');
@@ -407,33 +393,6 @@ const SendAReference = () => {
                         />
                       </FormControl>
                     </Grid>
-
-                    {/* <Grid item xs={12}>
-                      <FormControl sx={{ marginTop: 2, marginBottom: 2 }}>
-                        <FormLabel sx={{ fontSize: '1.1rem' }}>
-                          {isMovie ? 'Movie' : 'Series '} Year*
-                        </FormLabel>
-                        <Input
-                          name="year"
-                          type="number"
-                          value={year}
-                          onChange={(e) => {
-                            setYear(e.target.value);
-                            handleInputChange('year', e.target.value);
-                          }}
-                          onBlur={() => handleBlur('year')}
-                          required
-                          sx={{
-                            borderRadius: '4px',
-                            padding: '14px 0',
-                            borderColor:
-                              touched.year && !validity.year
-                                ? 'red'
-                                : '#cdd7e1',
-                          }}
-                        />
-                      </FormControl>
-                    </Grid> */}
                   </Grid>
 
                   {!isMovie && (
@@ -565,26 +524,10 @@ const SendAReference = () => {
                   </FormControl>
 
                   <FormControl sx={{ marginTop: 2, marginBottom: 2 }}>
-                    <FormLabel sx={{ fontSize: '1.1rem' }}>
-                      Scene screenshot/print/image
-                    </FormLabel>
-
-                    <Button
-                      component="label"
-                      variant="contained"
-                      startIcon={<CloudUploadIcon />}
-                      sx={{ backgroundColor: '#777cf6' }}
-                    >
-                      Upload file
-                      <VisuallyHiddenInput
-                        name="file"
-                        type="file"
-                        accept=".png, .jpeg, .jpg"
-                        onChange={handleFileChange}
-                      />
-                    </Button>
-                    {fileName && <span>Selected file: {fileName}</span>}
-                    {!fileName && <span>No file selected.</span>}
+                    <FileInput
+                      onFileChange={(file) => onFileChangeHandler(file)}
+                      shouldClearFileName={shouldClearFileName}
+                    />
                   </FormControl>
                 </Grid>
 
@@ -593,7 +536,6 @@ const SendAReference = () => {
                   xs={12}
                   sx={{ display: 'flex', justifyContent: 'flex-end' }}
                 >
-                  {/* Display the success message if submission was successful */}
                   {submissionStatus.success && (
                     <Typography
                       sx={{
@@ -609,7 +551,6 @@ const SendAReference = () => {
                     </Typography>
                   )}
 
-                  {/* Display the error message if there was an error */}
                   {!submissionStatus.success && submissionStatus.message && (
                     <Typography
                       sx={{
@@ -634,8 +575,8 @@ const SendAReference = () => {
                         'linear-gradient(45deg, #ffe622, #ff54fd, #2196F3);',
                       fontSize: '1.1rem',
                       opacity: '1',
-                      filter: `grayscale(${isFormValid() ? 0 : 1})`, // Apply grayscale filter when disabled
-                      color: isFormValid() ? 'white' : '#000!important', // Change color to black when disabled
+                      filter: `grayscale(${isFormValid() ? 0 : 1})`,
+                      color: isFormValid() ? 'white' : '#000!important',
                     }}
                     disabled={!isFormValid()}
                   >
