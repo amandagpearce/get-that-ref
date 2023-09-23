@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from 'react';
+import { useState, useContext, useEffect, useRef } from 'react';
 import { styled, alpha } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -55,6 +55,7 @@ export default function Header({ toggleModal }) {
   const authContext = useContext(AuthContext);
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
   const router = useRouter();
+  const searchInputRef = useRef(null);
 
   useEffect(() => {
     console.log('authContext', authContext);
@@ -99,7 +100,16 @@ export default function Header({ toggleModal }) {
     }
 
     const query = event.target.value;
+    searchInputRef.current.value = query;
     handleSearchInputChange(query);
+  };
+
+  const clearSearchInput = () => {
+    console.log('searchInputRef.current', searchInputRef.current.value);
+    if (searchInputRef.current) {
+      searchInputRef.current.value = ''; // Clear the input value
+      handleSearchInputChange('');
+    }
   };
 
   const menuId = 'primary-search-account-menu';
@@ -171,7 +181,7 @@ export default function Header({ toggleModal }) {
           }}
         >
           <Toolbar style={{ paddingLeft: '0' }}>
-            <Link href="/">
+            <Link href="/" onClick={clearSearchInput}>
               <img
                 src="/logo.png"
                 width="180"
@@ -188,7 +198,11 @@ export default function Header({ toggleModal }) {
                   placeholder="Search series or movie title"
                   inputProps={{
                     'aria-label': 'search',
+                    value: searchInputRef.current
+                      ? searchInputRef.current.value
+                      : '',
                   }}
+                  ref={searchInputRef}
                   onChange={handleInputChange}
                   endAdornment={<SearchIcon sx={{ margin: '20px' }} />}
                 />
