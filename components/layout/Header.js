@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { useSearch } from '../../context/SearchContext';
 import { useHttpClient } from '../../hooks/http-hook';
 import AuthContext from '../../context/auth-context';
+import { useRouter } from 'next/router';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -53,6 +54,7 @@ export default function Header({ toggleModal }) {
   const { handleSearchInputChange } = useSearch();
   const authContext = useContext(AuthContext);
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
+  const router = useRouter();
 
   useEffect(() => {
     console.log('authContext', authContext);
@@ -91,6 +93,11 @@ export default function Header({ toggleModal }) {
   };
 
   const handleInputChange = (event) => {
+    // Check if the current page is not the home page
+    if (router.pathname !== '/') {
+      router.push('/');
+    }
+
     const query = event.target.value;
     handleSearchInputChange(query);
   };
