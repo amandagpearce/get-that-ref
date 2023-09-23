@@ -3,11 +3,13 @@ import { useLazyQuery } from '@apollo/client';
 
 import AuthContext from '../context/auth-context';
 import FileInput from '../components/ui/forms/FileInput';
+import LoadingSpinner from '../components/ui/LoadingSpinner';
 import {
   SEARCH_SERIES_TITLES_QUERY,
   SEARCH_MOVIE_TITLES_QUERY,
   generateSendReferenceQuery,
 } from '../util/graphql_queries';
+import { useHttpClient } from '../hooks/http-hook';
 
 import Button from '@mui/material/Button';
 import Autocomplete from '@mui/material/Autocomplete';
@@ -59,6 +61,7 @@ const SendAReference = () => {
     artist: false,
     sceneDescription: false,
   });
+  const { isLoading, error, sendRequest, clearError } = useHttpClient();
 
   const clearForm = () => {
     setArtwork('');
@@ -72,6 +75,16 @@ const SendAReference = () => {
     setShouldClearFileName(true);
     setSearchTerm('');
     setValidity({
+      title: false,
+      year: false,
+      episode: true,
+      season: true,
+      artwork: false,
+      artist: false,
+      sceneDescription: false,
+    });
+
+    setTouched({
       title: false,
       year: false,
       episode: true,
@@ -132,33 +145,34 @@ const SendAReference = () => {
         },
       };
 
-      const graphqlResponse = await fetch('http://127.0.0.1:4000/graphql', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-      });
+      try {
+        const graphqlResponse = await sendRequest(
+          `http://127.0.0.1:4000/graphql`,
+          'POST',
+          JSON.stringify(requestBody),
+          { 'Content-Type': 'application/json' } // without this the backend does not know what type of data they are receiving
+        );
 
-      // Handle the response from the server (unchanged)
-      const result = await graphqlResponse.json();
+        console.log('graphqlResponse', graphqlResponse);
 
-      console.log('result.data', result.data);
-      if (result.data.createReference.success) {
-        setSubmissionStatus({
-          success: true,
-          message: 'Reference sent successfully!',
-        });
+        if (graphqlResponse.data.createReference.success) {
+          setSubmissionStatus({
+            success: true,
+            message: 'Reference sent successfully!',
+          });
 
-        clearForm();
-        clearSubmissionStatus(true);
-      } else {
-        setSubmissionStatus({
-          success: false,
-          message: 'Something went wrong.',
-        });
+          clearForm();
+          clearSubmissionStatus(true);
+        } else {
+          setSubmissionStatus({
+            success: false,
+            message: 'Something went wrong.',
+          });
 
-        clearSubmissionStatus();
+          clearSubmissionStatus();
+        }
+      } catch (err) {
+        console.log('error', err);
       }
     };
 
@@ -169,17 +183,27 @@ const SendAReference = () => {
           formData.append('file', file);
           formData.append('mimeType', file.type);
 
-          const response = await fetch('/api/s3Upload', {
-            method: 'POST',
-            body: formData,
-          });
+          try {
+            const s3Response = await sendRequest(
+              `/api/s3Upload`,
+              'POST',
+              formData
+            );
 
-          if (response.ok) {
-            const { s3ImageUrl } = await response.json();
-            submitForm(s3ImageUrl);
+            console.log('s3Response', s3Response);
 
-            // console.log('s3ImageUrl', s3ImageUrl);
-          } else {
+            if (!!s3Response.success) {
+              const { s3ImageUrl } = s3Response;
+              submitForm(s3ImageUrl);
+            } else {
+              setSubmissionStatus({
+                success: false,
+                message: 'Something went wrong with the file upload.',
+              });
+
+              clearSubmissionStatus();
+            }
+          } catch (err) {
             setSubmissionStatus({
               success: false,
               message: 'Something went wrong with the file upload.',
@@ -267,6 +291,8 @@ const SendAReference = () => {
 
   return (
     <>
+      {isLoading && <LoadingSpinner />}
+
       {authContext.isLoggedIn && (
         <>
           <Typography
