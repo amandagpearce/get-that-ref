@@ -1,22 +1,24 @@
 import { useState, useContext, useEffect, useRef } from 'react';
-import { styled, alpha } from '@mui/material/styles';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import InputBase from '@mui/material/InputBase';
-import MenuItem from '@mui/material/MenuItem';
-import Menu from '@mui/material/Menu';
-import SearchIcon from '@mui/icons-material/Search';
-import AccountCircle from '@mui/icons-material/AccountCircle';
-import ClickAwayListener from '@mui/material/ClickAwayListener';
-import { Container } from '@mui/material';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 import { useSearch } from '../../context/SearchContext';
 import { useHttpClient } from '../../hooks/http-hook';
 import AuthContext from '../../context/auth-context';
-import { useRouter } from 'next/router';
+
+import { styled, alpha } from '@mui/material/styles';
+import {
+  AppBar,
+  Box,
+  Toolbar,
+  IconButton,
+  InputBase,
+  MenuItem,
+  Menu,
+  Container,
+} from '@mui/material';
+import { Search as SearchIcon, AccountCircle } from '@mui/icons-material';
+import ClickAwayListener from '@mui/material/ClickAwayListener';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',

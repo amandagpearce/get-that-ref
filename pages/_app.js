@@ -1,20 +1,20 @@
 import { useState } from 'react';
 import Head from 'next/head';
-import './_app.css';
+import { ApolloProvider } from '@apollo/client';
 
 import Header from '../components/layout/Header';
 import Marquee from '../components/ui/Marquee';
-import { SearchProvider } from '../context/SearchContext';
-import { Container } from '@mui/material';
-import { client } from '../apollo';
-import { ApolloProvider } from '@apollo/client';
-import Link from 'next/link';
-import StarIcon from '@mui/icons-material/Star';
-
 import useAuth from './../hooks/auth-hook';
 import AuthContext from './../context/auth-context';
 import AppModal from '../components/ui/Modal';
 import AuthForms from '../components/layout/AuthForms';
+import { SearchProvider } from '../context/SearchContext';
+import { client } from '../apollo';
+import './_app.css';
+
+import { Container } from '@mui/material';
+import Link from 'next/link';
+import StarIcon from '@mui/icons-material/Star';
 
 export default function App({ Component, pageProps }) {
   const { token, login, logout, userType } = useAuth();

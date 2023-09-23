@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import Sheet from '@mui/joy/Sheet';
-import Typography from '@mui/joy/Typography';
-import FormControl from '@mui/joy/FormControl';
-import FormLabel from '@mui/joy/FormLabel';
-import Input from '@mui/joy/Input';
-import Button from '@mui/joy/Button';
+import {
+  Sheet,
+  Typography,
+  FormControl,
+  FormLabel,
+  Input,
+  Button,
+} from '@mui/joy';
 
 const SignupForm = ({ onSubmit }) => {
   const [email, setEmail] = useState('');

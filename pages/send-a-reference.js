@@ -11,19 +11,20 @@ import {
 } from '../util/graphql_queries';
 import { useHttpClient } from '../hooks/http-hook';
 
-import Button from '@mui/material/Button';
-import Autocomplete from '@mui/material/Autocomplete';
-import TextField from '@mui/material/TextField';
-import Sheet from '@mui/joy/Sheet';
-import Typography from '@mui/joy/Typography';
-import FormControl from '@mui/joy/FormControl';
-import FormLabel from '@mui/joy/FormLabel';
-import Input from '@mui/joy/Input';
-import Radio from '@mui/joy/Radio';
-import RadioGroup from '@mui/joy/RadioGroup';
-import Grid from '@mui/material/Grid';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import ErrorIcon from '@mui/icons-material/Error';
+import { TextField, Autocomplete, Button, Grid } from '@mui/material';
+import {
+  Sheet,
+  Typography,
+  FormControl,
+  FormLabel,
+  Input,
+  Radio,
+  RadioGroup,
+} from '@mui/joy';
+import {
+  CheckCircle as CheckCircleIcon,
+  Error as ErrorIcon,
+} from '@mui/icons-material';
 
 const SendAReference = () => {
   const authContext = useContext(AuthContext);

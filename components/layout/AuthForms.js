@@ -1,14 +1,13 @@
 import React, { useContext, useState } from 'react';
-import { Button, Grid } from '@mui/material';
-import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
 
 import LoginForm from '../ui/LoginForm';
 import SignupForm from '../ui/SignupForm';
-
 import { useHttpClient } from '../../hooks/http-hook';
 import AuthContext from '../../context/auth-context';
-
 import LoadingSpinner from '../ui/LoadingSpinner';
+
+import { Button, Grid } from '@mui/material';
+import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
 
 const AuthForms = ({ onSuccessfulSubmit }) => {
   const [isLogin, setIsLogin] = useState(true);

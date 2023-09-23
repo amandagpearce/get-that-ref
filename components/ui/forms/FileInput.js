@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { styled } from '@mui/material/styles';
-import FormLabel from '@mui/joy/FormLabel';
 import Button from '@mui/material/Button';
+import FormLabel from '@mui/joy/FormLabel';
 
 const FileInput = ({ onFileChange, shouldClearFileName }) => {
   const [fileName, setFileName] = useState();

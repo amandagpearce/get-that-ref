@@ -8,9 +8,8 @@ import {
   GET_MOVIE_ARTWORKS,
 } from '../../util/graphql_queries';
 
-import Box from '@mui/material/Box';
 import Masonry from '@mui/lab/Masonry';
-import { Grid } from '@mui/material';
+import { Grid, Box } from '@mui/material';
 
 const ImageMasonry = ({ itemData }) => {
   const [selectedImage, setSelectedImage] = useState(null);

@@ -7,19 +7,20 @@ import AuthContext from '../context/auth-context';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { GET_REFERENCES_TO_APPROVE } from '../util/graphql_queries';
 
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
-import { Grid } from '@mui/material';
-import Sheet from '@mui/joy/Sheet';
-import FormControl from '@mui/joy/FormControl';
-import FormLabel from '@mui/joy/FormLabel';
-import Input from '@mui/joy/Input';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import ErrorIcon from '@mui/icons-material/Error';
+import {
+  Card,
+  CardActions,
+  CardContent,
+  CardMedia,
+  Button,
+  Typography,
+  Grid,
+} from '@mui/material';
+import { Sheet, FormControl, FormLabel, Input } from '@mui/joy';
+import {
+  CheckCircle as CheckCircleIcon,
+  Error as ErrorIcon,
+} from '@mui/icons-material';
 
 const AdminAccount = () => {
   const [artworkTitle, setArtworkTitle] = useState('');
