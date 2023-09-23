@@ -2,6 +2,7 @@ import React from 'react';
 import { useQuery, gql } from '@apollo/client';
 import ImageMasonry from '../ui/ImageMasonry';
 import { useSearch } from '../../context/SearchContext';
+import Typography from '@mui/joy/Typography';
 
 const GET_SERIES_AND_MOVIES = gql`
   query {
@@ -46,7 +47,20 @@ function ProductionsList() {
     item.productionTitle.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  return <ImageMasonry itemData={filteredProductions} />;
+  let content;
+  if (filteredProductions.length) {
+    content = <ImageMasonry itemData={filteredProductions} />;
+  } else {
+    content = (
+      <div>
+        <Typography level="h4" component="h1" sx={{ textAlign: 'center' }}>
+          <b>No references found for this title.</b>
+        </Typography>
+      </div>
+    );
+  }
+
+  return content;
 }
 
 export default ProductionsList;
