@@ -1,25 +1,11 @@
 import React from 'react';
-import { useQuery, gql } from '@apollo/client';
+import { useQuery } from '@apollo/client';
+
 import ImageMasonry from '../ui/ImageMasonry';
 import { useSearch } from '../../context/SearchContext';
-import Typography from '@mui/joy/Typography';
+import { GET_SERIES_AND_MOVIES } from '../../util/graphql_queries';
 
-const GET_SERIES_AND_MOVIES = gql`
-  query {
-    movies {
-      id
-      productionTitle
-      year
-      imageUrl
-    }
-    series {
-      id
-      productionTitle
-      year
-      imageUrl
-    }
-  }
-`;
+import Typography from '@mui/joy/Typography';
 
 function ProductionsList() {
   const { loading, error, data } = useQuery(GET_SERIES_AND_MOVIES, {
@@ -32,11 +18,11 @@ function ProductionsList() {
 
   const movies = data.movies.map((movie) => ({
     ...movie,
-    productionType: 'movie', // Add productionType property
+    productionType: 'movie',
   }));
   const series = data.series.map((seriesItem) => ({
     ...seriesItem,
-    productionType: 'series', // Add productionType property
+    productionType: 'series',
   }));
 
   // Combine movies and series into a single array

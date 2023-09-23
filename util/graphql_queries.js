@@ -63,3 +63,21 @@ export const GET_MOVIE_ARTWORKS = gql`
     }
   }
 `;
+
+/* ProductionsList component query to retrieve productions */
+export const GET_SERIES_AND_MOVIES = gql`
+  query {
+    movies {
+      id
+      productionTitle
+      year
+      imageUrl
+    }
+    series {
+      id
+      productionTitle
+      year
+      imageUrl
+    }
+  }
+`;
