@@ -5,7 +5,11 @@ import { useQuery, gql } from '@apollo/client';
 
 import AuthContext from '../context/auth-context';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
-import { GET_REFERENCES_TO_APPROVE } from '../util/graphql_queries';
+import {
+  GET_REFERENCES_TO_APPROVE,
+  generateEditRefMutationQuery,
+  generateApproveRefMutationQuery,
+} from '../util/graphql_queries';
 
 import {
   Card,
@@ -44,7 +48,6 @@ const AdminAccount = () => {
   const router = useRouter();
 
   useEffect(() => {
-    // console.log('authContext', authContext);
     if (!authContext.isLoggedIn || authContext.userType !== 'admin') {
       router.push('/');
     }
@@ -91,54 +94,21 @@ const AdminAccount = () => {
 
     const clearArtworkDescription = artworkDescription.replace(/"/g, "'");
     const escapedArtworkDescription = JSON.stringify(clearArtworkDescription);
-    let graphqlMutation;
-
-    // Construct the GraphQL mutation
-    if (productionType === 'series') {
-      graphqlMutation = `
-        mutation {
-          createReference(
-            id: ${editData},
-            productionType: "${productionType}",
-            artworkDescription: ${escapedArtworkDescription},
-            artworkYear: ${artworkYear},
-            artworkTitle: "${artworkTitle}",
-            size: "${size}",
-            currentLocation: "${currentLocation}",
-            productionTitle: "${title}",
-            productionYear: ${year},
-            episode: ${episode},
-            season: ${season},
-            artist: "${artist}",
-            sceneDescription: "${sceneDescription}"
-          ) {
-            success
-            message
-          }
-        }
-      `;
-    } else {
-      graphqlMutation = `
-        mutation {
-          createReference(
-            id: ${editData},
-            productionType: "${productionType}",
-            artworkDescription: ${escapedArtworkDescription},
-            artworkYear: ${artworkYear},
-            artworkTitle: "${artworkTitle}",
-            size: "${size}",
-            currentLocation: "${currentLocation}",
-            productionTitle: "${title}",
-            productionYear: ${year},
-            artist: "${artist}",
-            sceneDescription: "${sceneDescription}"
-          ) {
-            success
-            message
-          }
-        }
-      `;
-    }
+    const EDIT_REF_MUTATION_QUERY = generateEditRefMutationQuery({
+      editData,
+      productionType,
+      escapedArtworkDescription,
+      artworkYear,
+      artworkTitle,
+      size,
+      currentLocation,
+      title,
+      year,
+      episode,
+      season,
+      artist,
+      sceneDescription,
+    });
 
     try {
       // Send the GraphQL request to your server
@@ -147,7 +117,7 @@ const AdminAccount = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ query: graphqlMutation }),
+        body: JSON.stringify({ query: EDIT_REF_MUTATION_QUERY }),
       });
 
       // Handle the response from the server
@@ -226,75 +196,7 @@ const AdminAccount = () => {
   };
 
   const handleApproveClick = async (card) => {
-    // Construct the GraphQL mutation
-    let graphqlMutation;
-
-    console.log('card.productionType', card.productionType);
-
-    if (card.productionType === 'series') {
-      graphqlMutation = `
-      mutation {
-        addInformation(
-          productionType: "${card.productionType}",
-          productionTitle: "${card.productionTitle}",
-          productionYear: ${card.productionYear},
-          artist: "${card.artist}",
-          artworkTitle: "${card.artworkTitle}",
-          artworkDescription: "${card.artworkDescription}",
-          artworkYear: ${card.artworkYear},
-          size: "${card.size}",
-          currentLocation: "${card.currentLocation}",
-          sceneDescription: "${card.sceneDescription}",
-          season: ${card.season},
-          episode: ${card.episode},
-          sceneImgUrl: "${card.sceneImgUrl}"
-        ) {
-          success
-          message
-        }
-      }
-    `;
-    } else {
-      graphqlMutation = `
-      mutation {
-        addInformation(
-          productionType: "${card.productionType}",
-          productionTitle: "${card.productionTitle}",
-          productionYear: ${card.productionYear},
-          artist: "${card.artist}",
-          artworkTitle: "${card.artworkTitle}",
-          artworkDescription: "${card.artworkDescription}",
-          artworkYear: ${card.artworkYear},
-          size: "${card.size}",
-          currentLocation: "${card.currentLocation}",
-          sceneDescription: "${card.sceneDescription}",
-          sceneImgUrl: "${card.sceneImgUrl}"
-        ) {
-          success
-          message
-        }
-      }
-    `;
-    }
-
-    // mutation {
-    //   addInformation(
-    //     artist: "Frida Kahlo",
-    //     artworkTitle: "Self-Portrait as a Tehuana",
-    //     year: 1943,
-    //     size: "76 cm x 61 cm",
-    //     currentLocation: "North Carolina Museum of Art",
-    //     description: "The depth of emotion and symbolism in this artwork is striking. Kahlo's gaze is intense and introspective, conveying a sense of self-awareness and resilience. The Tehuana costume becomes a powerful symbol of both her Mexican heritage and her personal struggle with physical and emotional pain. It is within these layers of symbolism that viewers can explore the complexities of Kahlo's life and her unapologetic approach to self-representation. 'Self-Portrait as a Tehuana' continues to resonate with art enthusiasts worldwide, not only for its technical brilliance but also for its ability to evoke a profound sense of empathy and connection with the artist's tumultuous life journey.",
-    //     productionType: "series",
-    //     productionTitle: "Euphoria",
-    //     season: 2,
-    //     episode: 4,
-    //     sceneDescription: "Jules recreates a famous work of art by Frida Kahlo, appearing with a portrait of love interest Rue painted on her forehead."
-    //   ) {
-    //     success
-    //     message
-    //   }
-    // }
+    const APPROVE_REF_MUTATION_QUERY = generateApproveRefMutationQuery(card);
 
     try {
       // Send the GraphQL request to your server
@@ -303,7 +205,7 @@ const AdminAccount = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ query: graphqlMutation }),
+        body: JSON.stringify({ query: APPROVE_REF_MUTATION_QUERY }),
       });
 
       // Handle the response from the server
@@ -316,6 +218,7 @@ const AdminAccount = () => {
         });
 
         resetSubmissionMessage();
+        /* ref was approved so delete ref from refs_to_approve table */
         handleDeleteClick(card.id);
 
         refetch();

@@ -133,3 +133,86 @@ export const GET_REFERENCES_TO_APPROVE = gql`
     }
   }
 `;
+
+/* Admin account mutation query to edit reference record before approval */
+export function generateEditRefMutationQuery({
+  editData,
+  productionType,
+  escapedArtworkDescription,
+  artworkYear,
+  artworkTitle,
+  size,
+  currentLocation,
+  title,
+  year,
+  episode,
+  season,
+  artist,
+  sceneDescription,
+}) {
+  // Define the common part of the mutation query
+  let mutationQuery = `
+    mutation {
+      createReference(
+        id: ${editData},
+        productionType: "${productionType}",
+        artworkDescription: ${escapedArtworkDescription},
+        artworkYear: ${artworkYear},
+        artworkTitle: "${artworkTitle}",
+        size: "${size}",
+        currentLocation: "${currentLocation}",
+        productionTitle: "${title}",
+        productionYear: ${year},
+        artist: "${artist}",
+        sceneDescription: "${sceneDescription}"
+      ) {
+        success
+        message
+      }
+    }
+  `;
+
+  // Conditionally add episode and season fields for series
+  if (productionType === 'series') {
+    mutationQuery = mutationQuery.replace(
+      /(\s*)(episode:.*)(\s*)(season:.*)/,
+      `$1episode: ${episode},$3season: ${season}`
+    );
+  }
+
+  return mutationQuery;
+}
+
+/* Admin account mutation query to approve ref */
+export function generateApproveRefMutationQuery(card) {
+  let mutationQuery = `
+    mutation {
+      addInformation(
+        productionType: "${card.productionType}",
+        productionTitle: "${card.productionTitle}",
+        productionYear: ${card.productionYear},
+        artist: "${card.artist}",
+        artworkTitle: "${card.artworkTitle}",
+        artworkDescription: "${card.artworkDescription}",
+        artworkYear: ${card.artworkYear},
+        size: "${card.size}",
+        currentLocation: "${card.currentLocation}",
+        sceneDescription: "${card.sceneDescription}",
+        sceneImgUrl: "${card.sceneImgUrl}"
+      ) {
+        success
+        message
+      }
+    }
+  `;
+
+  // Conditionally add episode and season fields for series
+  if (card.productionType === 'series') {
+    mutationQuery = mutationQuery.replace(
+      /(\s*)(episode:.*)(\s*)(season:.*)/,
+      `$1episode: ${card.episode},$3season: ${card.season}`
+    );
+  }
+
+  return mutationQuery;
+}
