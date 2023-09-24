@@ -47,7 +47,6 @@ export default function App({ Component, pageProps }) {
   };
 
   const submitPasswordChange = async (data) => {
-    console.log('data', data);
     try {
       const res = await sendRequest(
         'http://localhost:5000/change-password',
@@ -76,25 +75,6 @@ export default function App({ Component, pageProps }) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Marquee>
-        YOU'VE SEEN A{' '}
-        <em style={{ color: '#ff9799', fontStyle: 'normal' }}>
-          VISUAL ARTS REFERENCE
-        </em>{' '}
-        IN A MOVIE OR SERIES?{' '}
-        <Link
-          style={{ color: '#fff', textDecoration: 'none' }}
-          href="/send-a-reference"
-        >
-          <StarIcon sx={{ marginX: '5px' }} />
-          SUBMIT A
-          <em style={{ color: '#ff69de', fontStyle: 'normal' }}>
-            &nbsp;NEW REFERENCE HERE
-          </em>
-          <StarIcon sx={{ marginX: '5px' }} />
-        </Link>
-      </Marquee>
-
       <AuthContext.Provider
         value={{
           isLoggedIn: !!token,
@@ -105,10 +85,31 @@ export default function App({ Component, pageProps }) {
         }}
       >
         <SearchProvider>
-          <Header
-            toggleLoginModal={toggleLoginModal}
-            togglePasswordChangeModal={togglePasswordChangeModal}
-          />
+          <div className="sticky-header">
+            <Marquee>
+              YOU'VE SEEN A{' '}
+              <em style={{ color: '#ff9799', fontStyle: 'normal' }}>
+                VISUAL ARTS REFERENCE
+              </em>{' '}
+              IN A MOVIE OR SERIES?{' '}
+              <Link
+                style={{ color: '#fff', textDecoration: 'none' }}
+                href="/send-a-reference"
+              >
+                <StarIcon sx={{ marginX: '5px' }} />
+                SUBMIT A
+                <em style={{ color: '#ff69de', fontStyle: 'normal' }}>
+                  &nbsp;NEW REFERENCE HERE
+                </em>
+                <StarIcon sx={{ marginX: '5px' }} />
+              </Link>
+            </Marquee>
+
+            <Header
+              toggleLoginModal={toggleLoginModal}
+              togglePasswordChangeModal={togglePasswordChangeModal}
+            />
+          </div>
 
           <ApolloProvider client={client}>
             <AppModal open={isLoginModalOpen} handleClose={toggleLoginModal}>
