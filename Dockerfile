@@ -12,6 +12,6 @@ RUN npm i
 
 COPY . /app
 
-EXPOSE 9000
+EXPOSE 3000
 
 CMD ["npm", "run", "dev"]
