@@ -35,7 +35,7 @@ No header é possível fazer a busca pelo título da série ou filme.
 ![Search by title](https://raw.githubusercontent.com/amandagpearce/got-that-ref/main/doc/2.png)
 
 ### Visual Art References
-Ao clicar em um item da listagem na home, são exibidas as informações sobre as referências. 
+Ao clicar em um item da listagem na home, são exibidas as informações sobre as referências. A imagem da esquerda é a que foi enviada pelo formulário "Send a reference" e a imagem da direita é retornada por uma [API Rest](https://github.com/amandagpearce/google-image-service) que se comunica com [a API Graphql](https://github.com/amandagpearce/art-refs-api), ambas desenvolvidas para este trabalho. 
 
 ![Visual Art References](https://raw.githubusercontent.com/amandagpearce/got-that-ref/main/doc/3.png)
 
