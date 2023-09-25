@@ -32,7 +32,6 @@ AWS_REGION=stringaqui
 ```bash
   docker build -t got-that-ref .
 ```
-
 4. Rode a imagem criada:
 ```bash
   docker run -p 3000:3000 got-that-ref
@@ -42,6 +41,10 @@ AWS_REGION=stringaqui
 1. Clone o projeto
 2. Cole o arquivo `.env` preenchido e descrito na seção anterior na raiz do projeto.
 3. Na raiz do projeto, rode o comando:
+```bash
+  npm install
+```
+4. Após a instalação concluir, rode o comando:
 ```bash
   npm run dev
 ```
