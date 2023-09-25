@@ -9,8 +9,8 @@ Utiliza também os componentes [B - Art Refs API](https://github.com/amandagpear
 
 ---
 ## Arquivo .env
-É necessário a criação de um arquivo .env tanto para rodar o projeto com Docker quanto sem. 
-Após ter as informações do S3 descritas abaixo, crie um arquivo chamado `.env` com o seguinte conteúdo:
+É necessário a criação de um arquivo `.env.local` tanto para rodar o projeto com Docker quanto sem. 
+Após ter as informações do S3 descritas abaixo, crie um arquivo chamado `.env.local` com o seguinte conteúdo:
 
 ```bash
 
