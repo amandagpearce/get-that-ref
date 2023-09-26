@@ -89,25 +89,38 @@ const AdminAccount = () => {
     }
   };
 
+  const sanitizeInput = (input) => {
+    // Replace double quotes with single quotes
+    return input.replace(/"/g, "'");
+  };
+
   const handleEditFormSubmit = async (e) => {
     e.preventDefault();
 
-    const clearArtworkDescription = artworkDescription.replace(/"/g, "'");
-    const escapedArtworkDescription = JSON.stringify(clearArtworkDescription);
+    const clearArtworkDescription = sanitizeInput(artworkDescription);
+    const clearArtworkTitle = sanitizeInput(artworkTitle);
+    const clearSceneDescription = sanitizeInput(sceneDescription);
+    const clearArtist = sanitizeInput(artist);
+    const clearCurrentLocation = sanitizeInput(currentLocation);
+    const id = editData;
+
+    console.log('id', id);
+    console.log('clearArtworkDescription', clearArtworkDescription);
+
     const EDIT_REF_MUTATION_QUERY = generateEditRefMutationQuery({
-      editData,
+      id,
       productionType,
-      escapedArtworkDescription,
+      clearArtworkDescription,
       artworkYear,
-      artworkTitle,
+      clearArtworkTitle,
       size,
-      currentLocation,
+      clearCurrentLocation,
       title,
       year,
       episode,
       season,
-      artist,
-      sceneDescription,
+      clearArtist,
+      clearSceneDescription,
     });
 
     try {
@@ -219,7 +232,7 @@ const AdminAccount = () => {
 
         resetSubmissionMessage();
         /* ref was approved so delete ref from refs_to_approve table */
-        handleDeleteClick(card.id);
+        // handleDeleteClick(card.id);
 
         refetch();
         setEditData(null);

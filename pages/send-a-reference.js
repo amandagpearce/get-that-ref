@@ -114,20 +114,29 @@ const SendAReference = () => {
     }, 3000);
   };
 
+  const sanitizeInput = (input) => {
+    // Replace double quotes with single quotes and escape single quotes
+    return input.replace(/"/g, "'");
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const clearArtworkTitle = sanitizeInput(artwork);
+    const clearSceneDescription = sanitizeInput(sceneDescription);
+    const clearArtist = sanitizeInput(artist);
 
     const submitForm = async (s3ImageUrl = null) => {
       // Construct the GraphQL request payload
       const SEND_REFERENCE_QUERY = generateSendReferenceQuery(
-        artist,
-        artwork,
+        clearArtist,
+        clearArtworkTitle,
         year,
         isMovie,
         title,
         season,
         episode,
-        sceneDescription,
+        clearSceneDescription,
         s3ImageUrl
       );
 

@@ -136,35 +136,35 @@ export const GET_REFERENCES_TO_APPROVE = gql`
 
 /* Admin account mutation query to edit reference record before approval */
 export function generateEditRefMutationQuery({
-  editData,
+  id,
   productionType,
-  escapedArtworkDescription,
+  clearArtworkDescription,
   artworkYear,
-  artworkTitle,
+  clearArtworkTitle,
   size,
-  currentLocation,
+  clearCurrentLocation,
   title,
   year,
   episode,
   season,
-  artist,
-  sceneDescription,
+  clearArtist,
+  clearSceneDescription,
 }) {
   // Define the common part of the mutation query
   let mutationQuery = `
     mutation {
       createReference(
-        id: ${editData},
+        id: ${id},
         productionType: "${productionType}",
-        artworkDescription: ${escapedArtworkDescription},
+        artworkDescription: "${clearArtworkDescription}",
         artworkYear: ${artworkYear},
-        artworkTitle: "${artworkTitle}",
+        artworkTitle: "${clearArtworkTitle}",
         size: "${size}",
-        currentLocation: "${currentLocation}",
+        currentLocation: "${clearCurrentLocation}",
         productionTitle: "${title}",
         productionYear: ${year},
-        artist: "${artist}",
-        sceneDescription: "${sceneDescription}"
+        artist: "${clearArtist}",
+        sceneDescription: "${clearSceneDescription}"
       ) {
         success
         message

@@ -8,8 +8,6 @@ const useAuth = () => {
   const [tokenExpirationDate, setTokenExpirationDate] = useState();
 
   const login = useCallback((token, userType, expirationDate) => {
-    console.log('token auth-hook', token);
-
     setToken(token);
 
     if (userType) {

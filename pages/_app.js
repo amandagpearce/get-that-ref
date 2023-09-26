@@ -22,10 +22,7 @@ import { useHttpClient } from '../hooks/http-hook';
 export default function App({ Component, pageProps }) {
   const { token, login, logout, userType } = useAuth();
   const [requestSuccessful, setRequestSuccessful] = useState(null);
-  const authContext = useContext(AuthContext);
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
-  console.log('token', token);
-
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
@@ -87,7 +84,7 @@ export default function App({ Component, pageProps }) {
         <SearchProvider>
           <div className="sticky-header">
             <Marquee>
-              YOU'VE SEEN A{' '}
+              HAVE YOU SEEN A{' '}
               <em style={{ color: '#ff9799', fontStyle: 'normal' }}>
                 VISUAL ARTS REFERENCE
               </em>{' '}
