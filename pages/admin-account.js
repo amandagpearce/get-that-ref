@@ -232,7 +232,7 @@ const AdminAccount = () => {
 
         resetSubmissionMessage();
         /* ref was approved so delete ref from refs_to_approve table */
-        // handleDeleteClick(card.id);
+        handleDeleteClick(card.id);
 
         refetch();
         setEditData(null);
